@@ -1,14 +1,15 @@
 import { headers } from "next/headers";
-import PidForm from "../components/pid-form";
+import PidForm from "../../components/pid-form";
 
-export default async function MountPage({
+export default async function MountPidPage({
   params,
 }: {
   params: Promise<{
-    mount: string[];
+    mount: string;
+    pid: string;
   }>;
 }) {
-  const { mount } = await params;
+  const { mount, pid } = await params;
 
   const headersList = await headers();
 
@@ -21,16 +22,19 @@ export default async function MountPage({
     throw new Error("Unable to determine host");
   }
 
-  const pathname = `/${mount.join("/")}/`;
+  const baseUri =
+    `${protocol}://${host}/${mount}/`;
 
-  const baseUri = `${protocol}://${host}${pathname}`;
-
-  console.log("Mount base URI:", baseUri);
+  console.log("Mount PID page:");
+  console.log("mount:", mount);
+  console.log("pid:", pid);
+  console.log("baseUri:", baseUri);
 
   return (
     <PidForm
       mode="mount"
       baseUri={baseUri}
+      initialPid={pid}
     />
   );
 }

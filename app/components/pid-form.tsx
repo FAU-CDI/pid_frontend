@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type PidData = {
   pid: string;
@@ -16,45 +16,49 @@ type PidFormProps =
   | {
       mode: "namespace";
       namespaceId: string;
+      initialPid?: string;
     }
   | {
       mode: "mount";
       baseUri: string;
+      initialPid?: string;
     };
 
 export default function PidForm(props: PidFormProps) {
-  const [pid, setPid] = useState("");
+  const [pid, setPid] = useState(props.initialPid ?? "");
   const [pidData, setPidData] = useState<PidData | null>(null);
   const [error, setError] = useState("");
 
-  async function fetchPidData() {
+  async function fetchPidData(pidToFetch: string) {
     let apiUrl: string;
 
     if (props.mode === "namespace") {
       apiUrl =
         `/api/pid/${encodeURIComponent(props.namespaceId)}` +
-        `/${encodeURIComponent(pid.trim())}`;
+        `/${encodeURIComponent(pidToFetch)}`;
     } else {
       apiUrl =
         `/api/mount/${encodeURIComponent(props.baseUri)}` +
-        `/${encodeURIComponent(pid.trim())}`;
+        `/${encodeURIComponent(pidToFetch)}`;
     }
-
-    console.log("Frontend API URL:", apiUrl);
 
     const response = await fetch(apiUrl);
 
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch PID");
+      throw new Error(
+        data.error || "Failed to fetch PID"
+      );
     }
 
     return data;
-  }
+}
 
   async function showMetadata() {
-    if (!pid.trim()) {
+    const trimmedPid = pid.trim();
+
+    if (!trimmedPid) {
       setError("Please enter a PID.");
       setPidData(null);
       return;
@@ -63,9 +67,27 @@ export default function PidForm(props: PidFormProps) {
     try {
       setError("");
 
-      const data = await fetchPidData();
+      const data = await fetchPidData(trimmedPid);
 
       setPidData(data);
+
+      if (props.mode === "namespace") {
+        window.history.pushState(
+          {},
+          "",
+          `/resolve/${encodeURIComponent(
+            props.namespaceId
+          )}/${encodeURIComponent(trimmedPid)}`
+        );
+      } else {
+        const pathname = new URL(props.baseUri).pathname;
+
+        window.history.pushState(
+          {},
+          "",
+          `${pathname}${encodeURIComponent(trimmedPid)}`
+        );
+      }
     } catch (error: unknown) {
       setError(
         error instanceof Error
@@ -77,37 +99,63 @@ export default function PidForm(props: PidFormProps) {
     }
   }
 
+
+  useEffect(() => {
+    if (!props.initialPid) {
+      return;
+    }
+
+    async function loadPid() {
+      try {
+        setError("");
+      
+        const data = await fetchPidData(
+          props.initialPid!
+        );
+      
+        setPidData(data);
+      } catch (error: unknown) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to fetch PID"
+        );
+      
+        setPidData(null);
+      }
+    }
+
+    loadPid();
+  }, [props.initialPid]);
+
   async function resolvePid() {
-    if (!pid.trim()) {
+    const trimmedPid = pid.trim();
+
+    if (!trimmedPid) {
       setError("Please enter a PID.");
       return;
     }
 
-    try {
-      setError("");
+    if (props.mode === "namespace") {
+      window.location.href =
+        `/resolve/${encodeURIComponent(
+          props.namespaceId
+        )}/${encodeURIComponent(trimmedPid)}/go`;
 
-      const data = await fetchPidData();
-
-      if (!data.url) {
-        setError("No URL found.");
-        return;
-      }
-
-      window.location.href = data.url;
-    } catch (error: unknown) {
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to resolve PID"
-      );
+      return;
     }
+
+    const pathname = new URL(props.baseUri).pathname;
+
+    window.location.href =
+      `${pathname}${encodeURIComponent(trimmedPid)}/go`;
   }
 
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
         <h1 className="text-3xl font-bold">
-          QuickPID Resolver
+          PID Resolver
         </h1>
 
         <div className="text-sm text-gray-600">
