@@ -247,37 +247,6 @@ export default function PidForm(props: PidFormProps) {
           </div>
         )}
       </main>
-
-      <footer className="w-full bg-blue-950 px-8 py-4 text-white">
-        <div className="flex gap-6 text-sm">
-          <a
-            href="https://www.cdi.fau.de/impressum/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-          >
-            Impressum
-          </a>
-
-          <a
-            href="https://www.cdi.fau.de/datenschutz/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-          >
-            Datenschutz
-          </a>
-
-          <a
-            href="https://www.cdi.fau.de/barrierefreiheit"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:underline"
-          >
-            Barrierefreiheit
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }

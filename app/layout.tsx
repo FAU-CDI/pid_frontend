@@ -1,20 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "PID Resolver",
-  description: "PID Resolver is a service for resolving and exploring persistent identifiers.",
+  description: "Resolve and explore persistent identifiers.",
 };
 
 export default function RootLayout({
@@ -23,11 +12,43 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en">
+      <body className="flex min-h-screen flex-col">
+        <main className="flex-1">
+          {children}
+        </main>
+
+        <footer className="w-full bg-blue-950 px-8 py-4 text-white">
+          <div className="flex gap-6 text-sm">
+            <a
+              href="https://www.cdi.fau.de/impressum/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Impressum
+            </a>
+
+            <a
+              href="https://www.cdi.fau.de/datenschutz/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Datenschutz
+            </a>
+
+            <a
+              href="https://www.cdi.fau.de/barrierefreiheit"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Barrierefreiheit
+            </a>
+          </div>
+        </footer>
+      </body>
     </html>
   );
 }
