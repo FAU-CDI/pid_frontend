@@ -2,6 +2,25 @@ import { NextResponse } from "next/server";
 
 const backendUrl = process.env.BACKEND_URL;
 
+function errorRedirect(
+  request: Request,
+  status: number,
+  title: string,
+  message: string
+) {
+  const url = new URL("/error", request.url);
+
+  const params = new URLSearchParams();
+
+  params.set("status", String(status));
+  params.set("title", title);
+  params.set("message", message);
+
+  url.search = params.toString();
+
+  return NextResponse.redirect(url);
+}
+
 export async function GET(
   request: Request,
   context: {
@@ -15,31 +34,36 @@ export async function GET(
     if (!backendUrl) {
       console.error("Missing BACKEND_URL");
 
-      return new NextResponse(
-        "Server configuration error",
-        { status: 500 }
+      return errorRedirect(
+        request,
+        500,
+        "Server Configuration Error",
+        "The server is not configured correctly."
       );
     }
 
     const { mount, pid } = await context.params;
 
     if (!mount.trim() || !pid.trim()) {
-      return new NextResponse(
+      return errorRedirect(
+        request,
+        404,
         "Not Found",
-        { status: 404 }
+        "The requested resource was not found."
       );
     }
 
     const protocol =
       request.headers.get("x-forwarded-proto") || "http";
 
-    const host =
-      request.headers.get("host");
+    const host = request.headers.get("host");
 
     if (!host) {
-      return new NextResponse(
-        "Unable to determine host",
-        { status: 500 }
+      return errorRedirect(
+        request,
+        500,
+        "Server Error",
+        "Unable to determine the request host."
       );
     }
 
@@ -51,10 +75,7 @@ export async function GET(
       `${encodeURIComponent(baseUri)}/` +
       `${encodeURIComponent(pid)}`;
 
-    console.log(
-      "Mount base URI:",
-      baseUri
-    );
+    console.log("Mount base URI:", baseUri);
 
     console.log(
       "Requesting Go mount backend:",
@@ -73,82 +94,30 @@ export async function GET(
 
     if (!response.ok) {
       if (response.status === 404) {
-        return new NextResponse(
+        return errorRedirect(
+          request,
+          404,
           "Not Found",
-          { status: 404 }
+          "The mount or PID was not found."
         );
       }
 
-      return new NextResponse(
-        "Backend returned an error",
-        { status: 502 }
+      return errorRedirect(
+        request,
+        502,
+        "Backend Error",
+        "The backend returned an error."
       );
     }
 
     const data = await response.json();
 
     if (!data.url) {
-      return new NextResponse(
-        `
-          <!DOCTYPE html>
-          <html lang="en">
-            <head>
-              <meta charset="utf-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1" />
-              <title>URL Not Found</title>
-              <style>
-                body {
-                  margin: 0;
-                  font-family: Arial, sans-serif;
-                  background: white;
-                }
-      
-                main {
-                  min-height: 100vh;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  padding: 2rem;
-                  box-sizing: border-box;
-                }
-      
-                div {
-                  text-align: center;
-                }
-      
-                h1 {
-                  font-size: 1.875rem;
-                  font-weight: 700;
-                  color: #dc2626;
-                  margin: 0;
-                }
-      
-                p {
-                  margin-top: 1rem;
-                  color: #4b5563;
-                }
-              </style>
-            </head>
-      
-            <body>
-              <main>
-                <div>
-                  <h1>URL Not Found</h1>
-      
-                  <p>
-                    This PID does not have a URL associated with it.
-                  </p>
-                </div>
-              </main>
-            </body>
-          </html>
-        `,
-        {
-          status: 404,
-          headers: {
-            "Content-Type": "text/html; charset=utf-8",
-          },
-        }
+      return errorRedirect(
+        request,
+        404,
+        "URL Not Found",
+        "This PID does not have a URL associated with it."
       );
     }
 
@@ -159,9 +128,11 @@ export async function GET(
       error
     );
 
-    return new NextResponse(
-      "Backend unavailable",
-      { status: 502 }
+    return errorRedirect(
+      request,
+      502,
+      "Backend Unavailable",
+      "The backend could not be reached."
     );
   }
 }

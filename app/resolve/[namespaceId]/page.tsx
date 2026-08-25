@@ -35,13 +35,12 @@ export default async function NamespacePage({
     `${backendUrl}/resolver/namespaces/` +
     `${encodeURIComponent(namespaceId)}`;
 
-  console.log(
-    "Checking namespace:",
-    targetUrl
-  );
+  console.log("Checking namespace:", targetUrl);
+
+  let response: Response;
 
   try {
-    const response = await fetch(targetUrl, {
+    response = await fetch(targetUrl, {
       cache: "no-store",
     });
 
@@ -49,56 +48,6 @@ export default async function NamespacePage({
       "Namespace lookup response:",
       response.status,
       response.statusText
-    );
-
-    if (response.status === 404) {
-      return (
-        <main className="flex min-h-screen items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-red-600">
-              Invalid Namespace
-            </h1>
-
-            <p className="mt-4 text-gray-600">
-              The namespace{" "}
-              <span className="font-mono">
-                {namespaceId}
-              </span>{" "}
-              does not exist.
-            </p>
-          </div>
-        </main>
-      );
-    }
-
-    if (!response.ok) {
-      return (
-        <main className="flex min-h-screen items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-red-600">
-              Backend Error
-            </h1>
-
-            <p className="mt-4 text-gray-600">
-              Unable to verify the namespace.
-            </p>
-          </div>
-        </main>
-      );
-    }
-
-    const namespace = await response.json();
-
-    console.log(
-      "Namespace found:",
-      namespace
-    );
-
-    return (
-      <PidForm
-        mode="namespace"
-        namespaceId={namespaceId}
-      />
     );
   } catch (error) {
     console.error(
@@ -120,4 +69,51 @@ export default async function NamespacePage({
       </main>
     );
   }
+
+  if (response.status === 404) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-red-600">
+            Invalid Namespace
+          </h1>
+
+          <p className="mt-4 text-gray-600">
+            The namespace{" "}
+            <span className="font-mono">
+              {namespaceId}
+            </span>{" "}
+            does not exist.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!response.ok) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-red-600">
+            Backend Error
+          </h1>
+
+          <p className="mt-4 text-gray-600">
+            Unable to verify the namespace.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const namespace = await response.json();
+
+  console.log("Namespace found:", namespace);
+
+  return (
+    <PidForm
+      mode="namespace"
+      namespaceId={namespaceId}
+    />
+  );
 }

@@ -18,8 +18,17 @@ export default function RootLayout({
           {children}
         </main>
 
-        <footer className="w-full bg-blue-950 px-8 py-4 text-white">
+        <footer className="fixed bottom-0 w-full bg-blue-950 px-8 py-4 text-white">
           <div className="flex gap-6 text-sm">
+            <a
+              href="https://github.com/tkw1536/quickpid/tree/main/spec"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >
+              Documentation
+            </a>
+
             <a
               href="https://www.cdi.fau.de/impressum/"
               target="_blank"

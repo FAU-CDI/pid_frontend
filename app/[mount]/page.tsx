@@ -27,8 +27,7 @@ export default async function MountPage({
     throw new Error("Unable to determine host");
   }
 
-  const baseUri =
-    `${protocol}://${host}/${mount}/`;
+  const baseUri = `${protocol}://${host}/${mount}/`;
 
   console.log("Checking mount:", baseUri);
 
@@ -36,13 +35,12 @@ export default async function MountPage({
     `${backendUrl}/resolver/mounts/` +
     `${encodeURIComponent(baseUri)}`;
 
-  console.log(
-    "Checking Go mount endpoint:",
-    targetUrl
-  );
+  console.log("Checking Go mount endpoint:", targetUrl);
+
+  let response: Response;
 
   try {
-    const response = await fetch(targetUrl, {
+    response = await fetch(targetUrl, {
       cache: "no-store",
     });
 
@@ -51,58 +49,8 @@ export default async function MountPage({
       response.status,
       response.statusText
     );
-
-    if (response.status === 404) {
-      return (
-        <main className="flex min-h-screen items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-red-600">
-              Invalid Base URI
-            </h1>
-
-            <p className="mt-4 text-gray-600">
-              The base URI{" "}
-              <span className="font-mono">
-                {baseUri}
-              </span>{" "}
-              is not registered.
-            </p>
-          </div>
-        </main>
-      );
-    }
-
-    if (!response.ok) {
-      return (
-        <main className="flex min-h-screen items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-red-600">
-              Backend Error
-            </h1>
-
-            <p className="mt-4 text-gray-600">
-              Unable to verify the base URI.
-            </p>
-          </div>
-        </main>
-      );
-    }
-
-    const data = await response.json();
-
-    console.log("Mount found:", data);
-
-    return (
-      <PidForm
-        mode="mount"
-        baseUri={baseUri}
-      />
-    );
   } catch (error) {
-    console.error(
-      "Failed to check mount:",
-      error
-    );
+    console.error("Failed to check mount:", error);
 
     return (
       <main className="flex min-h-screen items-center justify-center p-8">
@@ -118,4 +66,49 @@ export default async function MountPage({
       </main>
     );
   }
+
+  if (response.status === 404) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-red-600">
+            Invalid Base URI
+          </h1>
+
+          <p className="mt-4 text-gray-600">
+            The base URI{" "}
+            <span className="font-mono">{baseUri}</span>{" "}
+            is not registered.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  if (!response.ok) {
+    return (
+      <main className="flex min-h-screen items-center justify-center p-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-red-600">
+            Backend Error
+          </h1>
+
+          <p className="mt-4 text-gray-600">
+            Unable to verify the base URI.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const data = await response.json();
+
+  console.log("Mount found:", data);
+
+  return (
+    <PidForm
+      mode="mount"
+      baseUri={baseUri}
+    />
+  );
 }
