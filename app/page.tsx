@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const router = useRouter();
+
   const [pidPath, setPidPath] = useState("");
   const [error, setError] = useState("");
 
@@ -77,8 +80,9 @@ export default function HomePage() {
        *
        * Navigate to the canonical PID details URL.
        */
-      window.location.href =
-        `/${encodeURIComponent(base)}/${encodeURIComponent(pid)}`;
+      router.push(
+        `/${encodeURIComponent(base)}/${encodeURIComponent(pid)}`
+      );
     } catch (error) {
       console.error("PID resolution failed:", error);
 
@@ -90,7 +94,6 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center p-8">
         <div className="w-full max-w-3xl space-y-8">
-
           {/* Title */}
           <div className="pt-12 text-center">
             <h1 className="text-4xl font-bold">
@@ -215,11 +218,8 @@ export default function HomePage() {
               </span>
             </div>
           </a>
-
         </div>
       </main>
-
-      
     </div>
   );
 }

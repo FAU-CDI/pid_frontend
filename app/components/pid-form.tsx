@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type PidData = {
   pid: string;
@@ -27,6 +28,8 @@ type PidFormProps =
     };
 
 export default function PidForm(props: PidFormProps) {
+  const router = useRouter();
+
   const [pid, setPid] = useState(
     props.initialPid ?? ""
   );
@@ -50,10 +53,11 @@ export default function PidForm(props: PidFormProps) {
     setError("");
 
     if (props.mode === "namespace") {
-      window.location.href =
+      router.push(
         `/resolve/${encodeURIComponent(
           props.namespaceId
-        )}/${encodeURIComponent(trimmedPid)}`;
+        )}/${encodeURIComponent(trimmedPid)}`
+      );
 
       return;
     }
@@ -62,8 +66,9 @@ export default function PidForm(props: PidFormProps) {
       props.baseUri
     ).pathname;
 
-    window.location.href =
-      `${pathname}${encodeURIComponent(trimmedPid)}`;
+    router.push(
+      `${pathname}${encodeURIComponent(trimmedPid)}`
+    );
   }
 
   function resolvePid() {
@@ -77,10 +82,11 @@ export default function PidForm(props: PidFormProps) {
     setError("");
 
     if (props.mode === "namespace") {
-      window.location.href =
+      router.push(
         `/resolve/${encodeURIComponent(
           props.namespaceId
-        )}/${encodeURIComponent(trimmedPid)}/go`;
+        )}/${encodeURIComponent(trimmedPid)}/go`
+      );
 
       return;
     }
@@ -89,8 +95,9 @@ export default function PidForm(props: PidFormProps) {
       props.baseUri
     ).pathname;
 
-    window.location.href =
-      `${pathname}${encodeURIComponent(trimmedPid)}/go`;
+    router.push(
+      `${pathname}${encodeURIComponent(trimmedPid)}/go`
+    );
   }
 
   return (
