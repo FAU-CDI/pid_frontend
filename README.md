@@ -1,43 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PID Resolver Frontend
 
-## Getting Started
+A public Next.js frontend for resolving and exploring Persistent Identifiers (PIDs).
 
-First, run the development server:
+This frontend is intended for the **non-authentication mode** of the PID resolver backend. It allows any user to retrieve information about publicly accessible PIDs and resolve them to their associated URLs without logging in.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+For the frontend intended for **authentication mode**, see:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[Authentication Mode Frontend](http://localhost:5173/)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The PID Resolver Frontend allows unauthenticated users to:
 
-## Learn More
+- Check whether a namespace exists.
+- Check whether a mount/base URI exists.
+- Search for a PID within a namespace.
+- Search for a PID using a mounted base URI.
+- View the complete details of a PID.
+- Directly access a PID details page through its URL.
+- Redirect to the URL associated with a PID.
+- Display an error when a PID does not exist.
+- Display an error when a mount or namespace does not exist.
+- Display an error when a PID has no associated URL.
 
-To learn more about Next.js, take a look at the following resources:
+The frontend does **not require authentication**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# How It Works
 
-## Deploy on Vercel
+A user first provides either:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. A **namespace ID**, or
+2. A **mounted base URI**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+through the URL.
+
+The application verifies the namespace or mount with the Go backend. If it exists, the user is shown a PID query page.
+
+From that page, the user can:
+
+- Enter a PID and click **Show Details**.
+- Enter a PID and click **Redirect**.
+
+The PID details include:
+
+- PID
+- Associated URL
+- Metadata
+- Date created
+- Date updated
+- Tags
+- Deleted status
+
+If the PID has no associated URL (`url: null`), attempting to redirect displays a **404 URL Not Found** error.
+
+---
+
+# Namespace Resolution
+
+Namespace-based resolution uses the following URL structure:
+
+```text
+/resolve/{namespaceId}
+
+for example:
+http://pid.bayern:3000/resolve/03b56314-59c4-40e0-8531-17c95961d6ee
+where 03b56314-59c4-40e0-8531-17c95961d6ee is the namespace id.
+
+Opening this URL first verifies that the namespace exists. If valid, the application displays a PID query page.
+
+A PID can also be accessed directly:
+/resolve/{namespaceId}/{pid}
+
+To directly resolve and redirect to the URL associated with a PID:
+/resolve/{namespaceId}/{pid}/go
+
+If the PID does not exist, a 404 error is displayed.
+If the PID exists but its url field is null, a URL Not Found error is displayed.
+
+# Mount Resolution
+
+The frontend also supports resolving PIDs through mounted base URIs.
+
+For example, if the following base URI is mounted in the backend:
+http://pid.bayern:3000/base/
+
+then opening:
+http://pid.bayern:3000/base/
+opens the PID query page for that mount.
+
+A PID can be accessed directly using:
+/{baseURI}/{pid}
+
+To directly resolve and redirect to the associated resource:
+/{baseURI}/{pid}/go
+
+The homepage is available at:
+http://pid.bayern:3000/
+
+The homepage contains a quick PID resolution field.
+Users can enter a path consisting of:
+baseUri/PID
 
 
 ## License
 
 Copyright (c) 2026 Bidisha Borgohain and contributors.
-
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
