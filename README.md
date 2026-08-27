@@ -79,6 +79,8 @@ To directly resolve and redirect to the URL associated with a PID:
 If the PID does not exist, a 404 error is displayed.
 If the PID exists but its url field is null, a URL Not Found error is displayed.
 
+---
+
 # Mount Resolution
 
 The frontend also supports resolving PIDs through mounted base URIs.
@@ -96,6 +98,9 @@ A PID can be accessed directly using:
 To directly resolve and redirect to the associated resource:
 /{baseURI}/{pid}/go
 
+---
+
+# Homepage
 The homepage is available at:
 http://pid.bayern:3000/
 
@@ -103,8 +108,11 @@ The homepage contains a quick PID resolution field.
 Users can enter a path consisting of:
 baseUri/PID
 
+---
 
-## License
+# License
 
 Copyright (c) 2026 Bidisha Borgohain and contributors.
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+---
