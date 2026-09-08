@@ -6,6 +6,20 @@ export const metadata: Metadata = {
   description: "Resolve and explore persistent identifiers.",
 };
 
+function LegalLink({ children, href, fallback }: {href: string|undefined, children: React.ReactNode|React.ReactNode[], fallback?: string}) {
+  const theHref = typeof href === 'string' && href !== '' ? href : fallback;
+  if (typeof theHref !== 'string' || theHref === '') {
+    return null;
+  }
+  
+  return (<a
+              href={theHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline"
+            >{children}</a>);
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -24,41 +38,29 @@ export default function RootLayout({
 
         <footer className="fixed bottom-0 w-full bg-blue-950 px-8 py-4 text-white">
           <div className="flex gap-6 text-sm">
-            <a
-              href={documentationUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
+            
+            <LegalLink href={documentationUrl} fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
             >
               Documentation
-            </a>
+            </LegalLink>
 
-            <a
+            <LegalLink
               href={imprintUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
             >
               Imprint
-            </a>
+            </LegalLink>
 
-            <a
+            <LegalLink
               href={privacyPolicyUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
             >
               Privacy Policy
-            </a>
+            </LegalLink>
 
-            <a
+            <LegalLink
               href={accessibilityUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
             >
               Accessibility
-            </a>
+            </LegalLink>
           </div>
         </footer>
       </body>

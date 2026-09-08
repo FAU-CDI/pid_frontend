@@ -2,11 +2,7 @@
 
 A public Next.js frontend for resolving and exploring Persistent Identifiers (PIDs).
 
-This frontend is intended for the **non-authentication mode** of the PID resolver backend. It allows any user to retrieve information about publicly accessible PIDs and resolve them to their associated URLs without logging in.
-
-For the frontend intended for **authentication mode**, see:
-
-[Authentication Mode Frontend](http://localhost:5173/)
+This frontend is intended to run using the public APIs of  [PID resolver](https://github.com/tkw1536/quickpid/tree/main/spec) backend. It allows any user to retrieve information about publicly accessible PIDs and resolve them to their associated URLs without logging in.
 
 ## Features
 
@@ -142,6 +138,26 @@ baseUri/PID
 ```
 
 ---
+
+## Deployment
+
+This project includes a [Dockerfile](./Dockerfile).
+The corresponding docker image is automatically built after every commit and published as a [GitHub package](https://github.com/FAU-CDI/pid_frontend/pkgs/container/pid_frontend). 
+
+It can be run with something like:
+
+```bash
+docker run -t -i -p 3000:3000 -e BACKEND_URL=http://pid.example.com/api/v2 ghcr.io/fau-cdi/pid_frontend:latest
+```
+
+The following environment variables can be configured:
+
+- `BACKEND_URL`: A url to the backend, should include the "api/v2". Should not have a trailing slash.
+- `DOCUMENTATION_URL`: A link to user-facing documentation. Defaults to the spec documentation.
+- `IMPRINT_URL`: A link to an imprint.
+- `PRIVACY_POLICY_URL`: A link to the privacy policy.
+- `ACCESSIBILITY_URL`: A link to an accessibility notice.
+
 
 ## License
 
