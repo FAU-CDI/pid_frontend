@@ -20,7 +20,7 @@ function LegalLink({ children, href, fallback }: {href: string|undefined, childr
             >{children}</a>);
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -67,3 +67,6 @@ export default function RootLayout({
     </html>
   );
 }
+
+// for process.env to be picked up correctly during SSR!
+export const dynamic = 'force-dynamic';
