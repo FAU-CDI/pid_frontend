@@ -86,7 +86,7 @@ COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 # setup node
 USER node
 
-# set default URLs for documentation
+# don't set any documentation URLs
 ENV DOCUMENTATION_URL=
 ENV IMPRINT_URL=
 ENV PRIVACY_POLICY_URL=
@@ -94,7 +94,7 @@ ENV ACCESSIBILITY_URL=
 
 # expose backend url and port
 EXPOSE 3000
-ENV BACKEND_URL
+ENV BACKEND_URL=
 
 # set the command
 CMD ["node", "server.js"]
