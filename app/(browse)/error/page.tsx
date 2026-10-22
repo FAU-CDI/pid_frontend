@@ -1,18 +1,17 @@
 import ResolvePanel from "@/app/components/resolve-panel";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
+import { errorPageForCode } from "@/lib/error-page";
 
 export default async function ErrorRoute({
   searchParams,
 }: {
   searchParams: Promise<{
-    status?: string;
-    title?: string;
-    message?: string;
+    code?: string;
   }>;
 }) {
   const params = await searchParams;
-  const status = Number(params.status) || 500;
+  const copy = errorPageForCode(params.code);
 
   return (
     <ResolverPage
@@ -20,11 +19,9 @@ export default async function ErrorRoute({
       resolve={<ResolvePanel mode="global" />}
       info={
         <StatusInfoCard
-          status={status}
-          title={params.title || "Something went wrong"}
-          message={
-            params.message || "An unexpected error occurred."
-          }
+          status={copy.status}
+          title={copy.title}
+          message={copy.message}
         />
       }
     />

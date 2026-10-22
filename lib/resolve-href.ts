@@ -26,33 +26,35 @@ export function encodeMountPath(mount: string): string {
     .join("/");
 }
 
-/** Build an in-app href for a successful `/api/resolve` result, or null if missing. */
+/**
+ * Build an in-app href for a `/api/resolve` result.
+ * Missing PIDs (`exists: false`) still link to the details page (never `/go`).
+ */
 export function hrefForResolved(
   result: ResolvedResult,
   publicBaseUri: string
-): string | null {
+): string {
   if (result.kind === "namespace") {
-    if (result.mount) {
+    if ("mount" in result && result.mount) {
       return `/${encodeMountPath(relativeMountPath(result.mount, publicBaseUri))}`;
     }
-    return `/resolve/${encodeURIComponent(result.namespace)}`;
+    if ("namespace" in result && result.namespace) {
+      return `/resolve/${encodeURIComponent(result.namespace)}`;
+    }
+    return "/";
   }
 
-  if (!result.exists) {
-    return null;
-  }
+  const go = result.exists && result.go;
 
   if ("mount" in result && result.mount) {
     const mountPath = encodeMountPath(
       relativeMountPath(result.mount, publicBaseUri)
     );
     const pid = encodeURIComponent(result.pid);
-    return result.go ? `/${mountPath}/${pid}/go` : `/${mountPath}/${pid}`;
+    return go ? `/${mountPath}/${pid}/go` : `/${mountPath}/${pid}`;
   }
 
   const ns = encodeURIComponent(result.namespace!);
   const pid = encodeURIComponent(result.pid);
-  return result.go
-    ? `/resolve/${ns}/${pid}/go`
-    : `/resolve/${ns}/${pid}`;
+  return go ? `/resolve/${ns}/${pid}/go` : `/resolve/${ns}/${pid}`;
 }

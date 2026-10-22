@@ -15,22 +15,15 @@ This backend uses only public (and read-only) APIs, meaning it can be run by any
 
 ## URL shapes
 
-**Namespace**
-
-- Query page: `/resolve/{namespaceId}`
-- PID details: `/resolve/{namespaceId}/{pid}`
-- Open URL: `/resolve/{namespaceId}/{pid}/go`
-
-**Mount**
-
-- Query page: `/{baseURI}/`
-- PID details: `/{baseURI}/{pid}`
-- Open URL: `/{baseURI}/{pid}/go`
-
-**Homepage**
-
-The homepage (`/`) includes a Resolve field.
-Enter a namespace or PID to look it up.
+| Pattern                 | Path                                   | Notes                              |
+|-------------------------|----------------------------------------|------------------------------------|
+| Homepage                | `/`                                    | Show Details field                 |
+| Namespace query         | `/resolve/{namespaceId}`               |                                    |
+| Namespace PID details   | `/resolve/{namespaceId}/{pid}`         |                                    |
+| Namespace Open URL      | `/resolve/{namespaceId}/{pid}/go`      | Redirect to target, or result UI   |
+| Mount query             | `/{baseURI}/`                          |                                    |
+| Mount PID details       | `/{baseURI}/{pid}`                     |                                    |
+| Mount Open URL          | `/{baseURI}/{pid}/go`                  | Redirect to target, or result UI   |
 
 ## Mock mode
 

@@ -59,7 +59,11 @@ describe("GET /api/resolve", () => {
       q: MOCK_NAMESPACE_ID,
       host: "localhost" as string | null,
       status: 200,
-      body: { kind: "namespace", namespace: MOCK_NAMESPACE_ID },
+      body: {
+        kind: "namespace",
+        namespace: MOCK_NAMESPACE_ID,
+        exists: true,
+      },
     },
     {
       name: "namespace resource",
@@ -83,6 +87,7 @@ describe("GET /api/resolve", () => {
         kind: "namespace",
         mount: MOCK_MOUNT_BASE_URI,
         namespace: MOCK_NAMESPACE_ID,
+        exists: true,
       },
     },
     {
@@ -108,6 +113,7 @@ describe("GET /api/resolve", () => {
         kind: "namespace",
         mount: MOCK_MOUNT_BASE_URI,
         namespace: MOCK_NAMESPACE_ID,
+        exists: true,
       },
     },
     {
@@ -129,7 +135,11 @@ describe("GET /api/resolve", () => {
       q: `http://localhost/resolve/${MOCK_NAMESPACE_ID}`,
       host: "localhost" as string | null,
       status: 200,
-      body: { kind: "namespace", namespace: MOCK_NAMESPACE_ID },
+      body: {
+        kind: "namespace",
+        namespace: MOCK_NAMESPACE_ID,
+        exists: true,
+      },
     },
     {
       name: "missing PID exists false",
@@ -145,11 +155,15 @@ describe("GET /api/resolve", () => {
       },
     },
     {
-      name: "unknown input",
+      name: "unknown namespace exists false",
       q: "no-such-namespace-or-mount",
       host: "localhost" as string | null,
-      status: 404,
-      body: { error: "No matching namespace or PID" },
+      status: 200,
+      body: {
+        kind: "namespace",
+        namespace: "no-such-namespace-or-mount",
+        exists: false,
+      },
     },
   ])("$name", async ({ q, host, status, body }) => {
     const response = await GET(resolveRequest(q, { host }));

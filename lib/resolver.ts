@@ -279,10 +279,15 @@ function tryParseURL(input: string): URL | null {
  * It can point to either a namespace or a resource.
  * Mounts are absolute "base URIs" as used by the backend.
  *
+ * Namespaces/mounts and resources may have `exists: false` when the context is
+ * syntactically valid but the backend returned a not-found for that entity
+ * (so the UI can still navigate to the matching details / not-found page).
+ *
  * In case of pointing to a resource, the pid itself may or may not exist, but must be syntactically valid (i.e. the backend should return 200, 410 or 404 and *not* a generic parsing error).
  */
 export type ResolvedResult =
-  | { kind: "namespace"; mount?: string; namespace: string }
+  | { kind: "namespace"; namespace: string; mount?: string; exists: boolean }
+  | { kind: "namespace"; mount: string; exists: boolean }
   | {
       kind: "resource";
       mount: string;
@@ -318,20 +323,35 @@ export async function resolve(
       const mount = client.resolveMountUri(result.mount, base_uri);
       const data = await client.getMount(mount);
       if (isBackendError(data)) {
+        if (data.status === 404 && data.code === "mountNotFound") {
+          return { kind: "namespace", mount, exists: false };
+        }
         return null;
       }
       return {
         kind: "namespace",
         mount,
         namespace: data.namespace,
+        exists: true,
       };
     }
 
     const data = await client.getNamespace(result.namespace);
     if (isBackendError(data)) {
+      if (data.status === 404 && data.code === "namespaceNotFound") {
+        return {
+          kind: "namespace",
+          namespace: result.namespace,
+          exists: false,
+        };
+      }
       return null;
     }
-    return { kind: "namespace", namespace: result.namespace };
+    return {
+      kind: "namespace",
+      namespace: result.namespace,
+      exists: true,
+    };
   }
 
   // resource
@@ -384,6 +404,11 @@ export async function resolve(
 
 /**
  * Parse input and return the first candidate that resolves against the API.
+ *
+ * A namespace/mount with `exists: false` is a soft miss: later candidates are
+ * still tried (so e.g. `demo` can resolve as a mount even when no namespace
+ * named `demo` exists). Resources (including missing PIDs) and existing
+ * namespaces stop the search immediately.
  */
 export async function resolveFirst(
   input: string,
@@ -391,13 +416,21 @@ export async function resolveFirst(
   client: BackendClient,
   hostname: string
 ): Promise<ResolvedResult | null> {
+  let softMiss: ResolvedResult | null = null;
+
   for (const candidate of parsePIDField(input, hostname)) {
     const resolved = await resolve(candidate, baseUri, client);
-    if (resolved !== null) {
-      return resolved;
+    if (resolved === null) {
+      continue;
     }
+    if (resolved.kind === "namespace" && !resolved.exists) {
+      softMiss ??= resolved;
+      continue;
+    }
+    return resolved;
   }
-  return null;
+
+  return softMiss;
 }
 
 /**

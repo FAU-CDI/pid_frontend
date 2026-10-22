@@ -45,7 +45,13 @@ export default async function MountPage({
       return (
         <ResolverPage
           breadcrumbs={[...crumbs]}
-          resolve={<ResolvePanel mode="global" />}
+          resolve={
+            <ResolvePanel
+              key={mount}
+              mode="global"
+              initialQuery={mount}
+            />
+          }
           info={
             <StatusInfoCard
               status={404}

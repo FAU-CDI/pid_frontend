@@ -15,6 +15,18 @@ export const serviceNotAvailable = {
   message: "This service is not available right now.",
 } as const;
 
+export const pidHasNoUrl = {
+  status: 404,
+  title: "URL not found",
+  message: "This PID does not have a URL associated with it.",
+} as const;
+
+export const pidNotFound = {
+  status: 404,
+  title: "Not found",
+  message: "The PID was not found.",
+} as const;
+
 /** Map a backend-unavailable flag to the matching user-facing status copy. */
 export function serviceStatusCopy(unavailable: boolean): {
   title: string;

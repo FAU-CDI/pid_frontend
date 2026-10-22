@@ -70,7 +70,7 @@ function GlobalResolvePanel({
 }) {
   const [query, setQuery] = useState(initialQuery);
 
-  async function resolvePid() {
+  async function showDetails() {
     const value = query.trim();
 
     if (!value) {
@@ -97,14 +97,7 @@ function GlobalResolvePanel({
 
       const result = data as ResolvedResult;
       const publicBase = `${window.location.protocol}//${window.location.host}`;
-      const href = hrefForResolved(result, publicBase);
-
-      if (href === null) {
-        setError("PID does not exist.");
-        return;
-      }
-
-      router.push(href);
+      router.push(hrefForResolved(result, publicBase));
     } catch (err) {
       console.error("PID resolution failed:", err);
       setError("Unable to resolve.");
@@ -113,10 +106,7 @@ function GlobalResolvePanel({
 
   return (
     <div className="card">
-      <h2 className="card-title">Resolve</h2>
-      <p className="card-hint">Enter a namespace or PID.</p>
-
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
         <input
           type="text"
           value={query}
@@ -126,21 +116,37 @@ function GlobalResolvePanel({
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              void resolvePid();
+              void showDetails();
             }
           }}
           placeholder={placeholder}
           autoComplete="off"
+          aria-label="Namespace or PID"
           className="field-input"
         />
-        <button type="button" onClick={() => void resolvePid()} className="btn-primary">
-          Resolve
-        </button>
+        <div className="flex shrink-0 flex-col gap-3 sm:w-40">
+          <button
+            type="button"
+            onClick={() => void showDetails()}
+            className="btn-primary w-full"
+          >
+            Show Details
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert-error">{error}</div>}
     </div>
   );
+}
+
+function mountPathPrefix(baseUri: string): string {
+  try {
+    const path = new URL(baseUri).pathname.replace(/^\/+|\/+$/g, "");
+    return path ? `${path}/` : "";
+  } catch {
+    return "";
+  }
 }
 
 function ScopedResolvePanel({
@@ -155,10 +161,10 @@ function ScopedResolvePanel({
 }) {
   const [pid, setPid] = useState(props.initialPid ?? "");
 
-  const contextHint =
+  const prefix =
     props.scope === "namespace"
-      ? `Look up a PID in namespace ${props.namespaceId}.`
-      : "Look up a PID.";
+      ? `${props.namespaceId}/`
+      : mountPathPrefix(props.baseUri);
 
   function showDetails() {
     const trimmedPid = pid.trim();
@@ -179,7 +185,7 @@ function ScopedResolvePanel({
     router.push(`${pathname}${encodeURIComponent(trimmedPid)}`);
   }
 
-  function redirect() {
+  function openUrl() {
     const trimmedPid = pid.trim();
     if (!trimmedPid) {
       setError("Please enter a PID.");
@@ -187,48 +193,63 @@ function ScopedResolvePanel({
     }
     setError("");
 
+    // Full navigation so the browser follows the /go redirect without App Router soft-nav overhead.
     if (props.scope === "namespace") {
-      router.push(
+      window.location.assign(
         `/resolve/${encodeURIComponent(props.namespaceId)}/${encodeURIComponent(trimmedPid)}/go`
       );
       return;
     }
 
     const pathname = new URL(props.baseUri).pathname;
-    router.push(`${pathname}${encodeURIComponent(trimmedPid)}/go`);
+    window.location.assign(
+      `${pathname}${encodeURIComponent(trimmedPid)}/go`
+    );
   }
 
   return (
     <div className="card">
-      <h2 className="card-title">Resolve</h2>
-      <p className="card-hint">{contextHint}</p>
-
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-        <input
-          type="text"
-          placeholder="Enter PID"
-          value={pid}
-          autoComplete="off"
-          onChange={(e) => {
-            setPid(e.target.value);
-            setError("");
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              showDetails();
-            }
-          }}
-          className="field-input"
-        />
-      </div>
-
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-        <button type="button" onClick={showDetails} className="btn-primary">
-          Show Details
-        </button>
-        <button type="button" onClick={redirect} className="btn-secondary">
-          Open URL
-        </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+        <div className="field-with-prefix flex-1">
+          {prefix && (
+            <span className="field-prefix" aria-hidden="true">
+              {prefix}
+            </span>
+          )}
+          <input
+            type="text"
+            placeholder="PID"
+            value={pid}
+            autoComplete="off"
+            aria-label="PID"
+            onChange={(e) => {
+              setPid(e.target.value);
+              setError("");
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                showDetails();
+              }
+            }}
+            className="field-input-bare"
+          />
+        </div>
+        <div className="flex shrink-0 flex-col gap-3 sm:w-40">
+          <button
+            type="button"
+            onClick={showDetails}
+            className="btn-primary w-full"
+          >
+            Show Details
+          </button>
+          <button
+            type="button"
+            onClick={openUrl}
+            className="btn-secondary w-full"
+          >
+            Open URL
+          </button>
+        </div>
       </div>
 
       {error && <div className="alert-error">{error}</div>}

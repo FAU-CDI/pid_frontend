@@ -47,7 +47,13 @@ export default async function NamespacePage({
             homeBreadcrumb(),
             { label: namespaceId },
           ]}
-          resolve={<ResolvePanel mode="global" />}
+          resolve={
+            <ResolvePanel
+              key={namespaceId}
+              mode="global"
+              initialQuery={namespaceId}
+            />
+          }
           info={
             <StatusInfoCard
               status={404}

@@ -31,6 +31,16 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - The homepage Resolve field must accept whatever a user might paste, not only short relative paths.
   At minimum it must understand absolute URLs that point at this frontend’s own pages (same-host links to namespace, mount, PID, and Open URL routes).
   Parsing lives in `lib/resolver.ts` (`parsePIDField` and related helpers): when browse routes or URL shapes change, update that parser (and its tests) in the same change.
+- Never render untrusted request input (query params, path segments used as prose, headers, etc.) as error **title** or **message** in the UI.
+  There must be no page that lets callers inject custom error titles or messages via the URL.
+  User-visible error copy must come from server-defined constants (or fixed page content), keyed at most by an opaque allowlisted code.
+- Uniform HTTP, no client sniffing: never vary status, headers, or body based on `Accept`, `User-Agent`, or other client fingerprints.
+  The same URL must behave the same for browsers, curl, and every other client.
+  Do not invent hacky content-negotiation substitutes.
+- Open URL is `/go`: redirect when a target URL exists; otherwise render the result UI with breadcrumbs ending in **URL** and fixed server copy.
+- Stable public URL shapes: the routes under **URL shapes** in `README.md` are a **public API**.
+  Do not remove or change them.
+  Do not add new public routes unless the user explicitly requests that breaking or additive change.
 
 ## Git workflow
 
@@ -45,7 +55,8 @@ Do not surface implementation terms in the UI (`mount`, `base URI` / `base_URI`,
 Exception: the namespace card may show a **Mount:** label when a mount URL is present.
 Prefer content errors (“No such namespace”, “This PID was not found”) over implementation talk (“not registered”, “unable to verify the base URI”).
 Prefer service-focused outages (“Service unavailable”) over “backend” / “Go” language.
-Keep action labels consistent: **Resolve**, **Show Details**, **Open URL**.
+Keep action labels consistent: **Show Details**, **Open URL** (product name may still say PID Resolver).
+The homepage primary control is **Show Details**, matching scoped mode; scoped mode also shows **Open URL**.
 The same user-facing terminology must be used in the UI and in user-facing README sections.
 When renaming a label or error phrase in one place, update the other.
 Do not introduce synonyms for the same action (for example, do not mix “Redirect” and “Open URL”).
