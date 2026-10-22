@@ -10,20 +10,21 @@ export default function ErrorPage({
   message,
 }: ErrorPageProps) {
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex flex-1 items-center justify-center p-8">
-        <div className="text-center">
-          <div className="text-6xl font-bold text-red-600">
-            {status}
+    <div className="page-shell">
+      <main className="page-main">
+        <div className="page-column">
+          <div className="page-header">
+            <h1 className="page-title">PID Resolver</h1>
+            <p className="page-lede">
+              Resolve and explore persistent identifiers.
+            </p>
           </div>
 
-          <h1 className="mt-4 text-3xl font-bold">
-            {title}
-          </h1>
-
-          <p className="mt-3 text-gray-600">
-            {message}
-          </p>
+          <div className="card text-center">
+            <div className="error-status">{status}</div>
+            <h2 className="card-title mt-4">{title}</h2>
+            <p className="card-body">{message}</p>
+          </div>
         </div>
       </main>
     </div>

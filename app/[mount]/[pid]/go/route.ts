@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-
-const backendUrl = process.env.BACKEND_URL;
+import {
+  getBackendClient,
+  isBackendError,
+} from "@/lib/backend/client";
 
 function errorRedirect(
   request: Request,
@@ -30,10 +32,40 @@ export async function GET(
     }>;
   }
 ) {
-  try {
-    if (!backendUrl) {
-      console.error("Missing BACKEND_URL");
+  const { mount, pid } = await context.params;
 
+  if (!mount.trim() || !pid.trim()) {
+    return errorRedirect(
+      request,
+      404,
+      "Not Found",
+      "The requested resource was not found."
+    );
+  }
+
+  const protocol =
+    request.headers.get("x-forwarded-proto") || "http";
+
+  const host = request.headers.get("host");
+
+  if (!host) {
+    return errorRedirect(
+      request,
+      500,
+      "Server Error",
+      "Unable to determine the request host."
+    );
+  }
+
+  const client = getBackendClient();
+  const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
+
+  console.log("Mount base URI:", baseUri);
+
+  const result = await client.getResourceByMount(baseUri, pid);
+
+  if (isBackendError(result)) {
+    if (result.status === 500) {
       return errorRedirect(
         request,
         500,
@@ -42,97 +74,40 @@ export async function GET(
       );
     }
 
-    const { mount, pid } = await context.params;
-
-    if (!mount.trim() || !pid.trim()) {
+    if (result.status === 404) {
       return errorRedirect(
         request,
         404,
         "Not Found",
-        "The requested resource was not found."
+        "The mount or PID was not found."
       );
     }
 
-    const protocol =
-      request.headers.get("x-forwarded-proto") || "http";
-
-    const host = request.headers.get("host");
-
-    if (!host) {
-      return errorRedirect(
-        request,
-        500,
-        "Server Error",
-        "Unable to determine the request host."
-      );
-    }
-
-    const baseUri =
-      `${protocol}://${host}/${mount}/`;
-
-    const targetUrl =
-      `${backendUrl}/resolver/mounts/` +
-      `${encodeURIComponent(baseUri)}/` +
-      `${encodeURIComponent(pid)}`;
-
-    console.log("Mount base URI:", baseUri);
-
-    console.log(
-      "Requesting Go mount backend:",
-      targetUrl
-    );
-
-    const response = await fetch(targetUrl, {
-      cache: "no-store",
-    });
-
-    console.log(
-      "Go response:",
-      response.status,
-      response.statusText
-    );
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return errorRedirect(
-          request,
-          404,
-          "Not Found",
-          "The mount or PID was not found."
-        );
-      }
-
+    if (result.error === "Backend unavailable") {
       return errorRedirect(
         request,
         502,
-        "Backend Error",
-        "The backend returned an error."
+        "Backend Unavailable",
+        "The backend could not be reached."
       );
     }
-
-    const data = await response.json();
-
-    if (!data.url) {
-      return errorRedirect(
-        request,
-        404,
-        "URL Not Found",
-        "This PID does not have a URL associated with it."
-      );
-    }
-
-    return NextResponse.redirect(data.url);
-  } catch (error) {
-    console.error(
-      "Mount redirect failed:",
-      error
-    );
 
     return errorRedirect(
       request,
       502,
-      "Backend Unavailable",
-      "The backend could not be reached."
+      "Backend Error",
+      "The backend returned an error."
     );
   }
+
+  if (!("url" in result) || !result.url) {
+    return errorRedirect(
+      request,
+      404,
+      "URL Not Found",
+      "This PID does not have a URL associated with it."
+    );
+  }
+
+  return NextResponse.redirect(result.url);
 }

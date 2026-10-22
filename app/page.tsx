@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { ResolvedResult } from "@/lib/resolver";
 
 export default function HomePage() {
   const router = useRouter();
@@ -13,103 +14,60 @@ export default function HomePage() {
     const value = pidPath.trim();
 
     if (!value) {
-      setError("Please enter a base URI and PID.");
+      setError("Please enter a namespace, mount, or PID path.");
       return;
     }
-
-    /*
-     * Expected format:
-     *
-     * base/kqz-d5j
-     *
-     * First part = mount/base
-     * Second part = PID
-     */
-
-    const parts = value.split("/").filter(Boolean);
-
-    if (parts.length !== 2) {
-      setError(
-        "Please enter a base URI and PID, for example: base/kqz-d5j"
-      );
-      return;
-    }
-
-    const [base, pid] = parts;
 
     try {
       setError("");
 
-      /*
-       * Check that the PID exists before navigating.
-       *
-       * This uses the same API that the mount PID page uses.
-       *
-       * We need the full base URI because the Go API resolves
-       * mounts using the absolute URI.
-       */
-
-      const protocol = window.location.protocol;
-      const host = window.location.host;
-
-      const baseUri = `${protocol}//${host}/${base}/`;
-
-      const apiUrl =
-        `/api/mount/${encodeURIComponent(baseUri)}` +
-        `/${encodeURIComponent(pid)}`;
-
-      const response = await fetch(apiUrl);
+      const response = await fetch(
+        `/api/resolve?q=${encodeURIComponent(value)}`
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
         if (response.status === 404) {
-          setError("PID does not exist.");
+          setError("No matching namespace or PID.");
         } else {
-          setError(data.error || "Unable to resolve PID.");
+          setError(data.error || "Unable to resolve.");
         }
-
         return;
       }
 
-      /*
-       * PID exists.
-       *
-       * Navigate to the PID details URL.
-       */
-      router.push(
-        `/${encodeURIComponent(base)}/${encodeURIComponent(pid)}`
-      );
-    } catch (error) {
-      console.error("PID resolution failed:", error);
+      const result = data as ResolvedResult;
+      const publicBase = `${window.location.protocol}//${window.location.host}`;
+      const href = hrefForResolved(result, publicBase);
 
-      setError("Unable to resolve PID.");
+      if (href === null) {
+        setError("PID does not exist.");
+        return;
+      }
+
+      router.push(href);
+    } catch (err) {
+      console.error("PID resolution failed:", err);
+      setError("Unable to resolve.");
     }
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100">
-      <main className="flex flex-1 flex-col items-center p-8">
-        <div className="w-full max-w-3xl space-y-8">
-          {/* Title */}
-          <div className="pt-12 text-center">
-            <h1 className="text-4xl font-bold">
-              PID Resolver
-            </h1>
-
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
+    <div className="page-shell">
+      <main className="page-main">
+        <div className="page-column">
+          <div className="page-header">
+            <h1 className="page-title">PID Resolver</h1>
+            <p className="page-lede">
               Resolve and explore persistent identifiers.
             </p>
           </div>
 
-          {/* Resolve PID */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="text-2xl font-semibold">
-              Resolve PID
-            </h2>
-
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Enter a base URI and PID to resolve the resource.
+          <div className="card">
+            <h2 className="card-title">Resolve PID</h2>
+            <p className="card-hint">
+              Enter a mount path, namespace id, or PID (optionally with{" "}
+              <span className="font-mono">/go</span>).
             </p>
 
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -127,96 +85,124 @@ export default function HomePage() {
                 }}
                 placeholder="base/kqz-d5j"
                 autoComplete="off"
-                className="flex-1 rounded border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder:text-gray-400 outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500"
+                className="field-input"
               />
 
-              <button
-                onClick={resolvePid}
-                className="rounded bg-blue-600 px-6 py-2 font-medium text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500"
-              >
+              <button onClick={resolvePid} className="btn-primary">
                 Resolve
               </button>
             </div>
 
-            {error && (
-              <div className="mt-4 rounded border border-red-200 bg-red-50 p-3 font-medium text-red-600 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400">
-                {error}
-              </div>
-            )}
+            {error && <div className="alert-error">{error}</div>}
           </div>
 
-          {/* About */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <h2 className="text-2xl font-semibold">
-              About PID Resolver
-            </h2>
-
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
-              This service allows users to resolve PIDs and
-              retrieve information about the resources they
-              identify.
+          <div className="card">
+            <h2 className="card-title">About PID Resolver</h2>
+            <p className="card-body">
+              This service allows users to resolve PIDs and retrieve information
+              about the resources they identify.
             </p>
           </div>
 
-          {/* Features */}
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="font-semibold">
-                PID
-              </h3>
-
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="card-compact">
+              <h3 className="font-semibold">PID</h3>
+              <p className="card-hint">
                 Persistent identifier for a resource.
               </p>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="font-semibold">
-                Metadata
-              </h3>
-
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="card-compact">
+              <h3 className="font-semibold">Metadata</h3>
+              <p className="card-hint">
                 View metadata associated with a PID.
               </p>
             </div>
 
-            <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
-              <h3 className="font-semibold">
-                Resolution
-              </h3>
-
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="card-compact">
+              <h3 className="font-semibold">Resolution</h3>
+              <p className="card-hint">
                 Resolve a PID to its associated resource.
               </p>
             </div>
           </div>
 
-          {/* Documentation */}
           <a
             href="https://github.com/tkw1536/quickpid/tree/main/spec"
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-lg border border-gray-200 bg-gray-100 p-6 transition hover:bg-gray-200 dark:border-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800"
+            className="card-muted"
           >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-semibold">
-                  Documentation
-                </h2>
-
-                <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                  Read the documentation and learn more about
-                  the PID Resolver.
+                <h2 className="card-title">Documentation</h2>
+                <p className="card-hint">
+                  Read the documentation and learn more about the PID Resolver.
                 </p>
               </div>
-
-              <span className="text-xl">
-                →
-              </span>
+              <span className="text-xl">→</span>
             </div>
           </a>
         </div>
       </main>
     </div>
   );
+}
+
+function relativeMountPath(
+  absoluteMount: string,
+  publicBaseUri: string
+): string {
+  const origin = publicBaseUri.replace(/\/+$/, "");
+  let path = absoluteMount;
+  if (path.startsWith(origin)) {
+    path = path.slice(origin.length);
+  } else {
+    try {
+      path = new URL(absoluteMount).pathname;
+    } catch {
+      // keep path as-is
+    }
+  }
+  return path.replace(/^\/+|\/+$/g, "");
+}
+
+function encodeMountPath(mount: string): string {
+  return mount
+    .split("/")
+    .filter(Boolean)
+    .map(encodeURIComponent)
+    .join("/");
+}
+
+function hrefForResolved(
+  result: ResolvedResult,
+  publicBaseUri: string
+): string | null {
+  if (result.kind === "namespace") {
+    if (result.mount) {
+      return `/${encodeMountPath(relativeMountPath(result.mount, publicBaseUri))}`;
+    }
+    return `/resolve/${encodeURIComponent(result.namespace)}`;
+  }
+
+  if (!result.exists) {
+    return null;
+  }
+
+  if ("mount" in result && result.mount) {
+    const mountPath = encodeMountPath(
+      relativeMountPath(result.mount, publicBaseUri)
+    );
+    const pid = encodeURIComponent(result.pid);
+    return result.go
+      ? `/${mountPath}/${pid}/go`
+      : `/${mountPath}/${pid}`;
+  }
+
+  const ns = encodeURIComponent(result.namespace!);
+  const pid = encodeURIComponent(result.pid);
+  return result.go
+    ? `/resolve/${ns}/${pid}/go`
+    : `/resolve/${ns}/${pid}`;
 }

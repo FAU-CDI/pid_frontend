@@ -153,11 +153,37 @@ docker run -t -i -p 3000:3000 -e BACKEND_URL=http://pid.example.com/api/v2 ghcr.
 The following environment variables can be configured:
 
 - `BACKEND_URL`: A url to the backend, should include the "api/v2". Should not have a trailing slash.
+- `PUBLIC_BASE_URI`: Optional public frontend origin used when building absolute mount base URIs for the backend (no trailing slash). When set, overrides the request host so local/dev can match mounts registered under a different origin.
+- `USE_MOCK_CLIENT`: Use the in-memory mock backend instead of calling the Go API (see [`lib/backend`](./lib/backend)).
 - `DOCUMENTATION_URL`: A link to user-facing documentation. Defaults to the spec documentation.
 - `IMPRINT_URL`: A link to an imprint.
 - `PRIVACY_POLICY_URL`: A link to the privacy policy.
 - `ACCESSIBILITY_URL`: A link to an accessibility notice.
 
+---
+
+## Backend client
+
+Server-side calls to the Go QuickPID API use a typed client under [`lib/backend`](./lib/backend). Types are generated from the backend OpenAPI spec; the spec itself is **not** stored in this repository.
+
+To regenerate types after a backend API change:
+
+```bash
+npm run generate:api -- /path/to/openapi.yaml
+```
+
+See [`lib/backend/README.md`](./lib/backend/README.md) for details.
+
+---
+
+## Tests
+
+```bash
+npm test
+npm run test:watch
+```
+
+Tests use the mock backend client (`USE_MOCK_CLIENT`); they do not call the live Go API.
 
 ## License
 

@@ -1,6 +1,9 @@
 import PidForm from "../../components/pid-form";
-
-const backendUrl = process.env.BACKEND_URL;
+import ErrorPage from "../../components/error-page";
+import {
+  getBackendClient,
+  isBackendError,
+} from "@/lib/backend/client";
 
 export default async function NamespacePage({
   params,
@@ -11,104 +14,55 @@ export default async function NamespacePage({
 }) {
   const { namespaceId } = await params;
 
-  if (!backendUrl) {
-    throw new Error("Missing BACKEND_URL");
-  }
-
   if (!namespaceId.trim()) {
     return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Invalid Namespace
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            No namespace ID was provided.
-          </p>
-        </div>
-      </main>
+      <ErrorPage
+        status={400}
+        title="Invalid Namespace"
+        message="No namespace ID was provided."
+      />
     );
   }
 
-  const targetUrl =
-    `${backendUrl}/resolver/namespaces/` +
-    `${encodeURIComponent(namespaceId)}`;
+  console.log("Checking namespace:", namespaceId);
 
-  console.log("Checking namespace:", targetUrl);
+  const result = await getBackendClient().getNamespace(namespaceId);
 
-  let response: Response;
+  if (isBackendError(result)) {
+    if (result.status === 500) {
+      throw new Error("Missing BACKEND_URL");
+    }
 
-  try {
-    response = await fetch(targetUrl, {
-      cache: "no-store",
-    });
+    if (result.status === 404) {
+      return (
+        <ErrorPage
+          status={404}
+          title="Invalid Namespace"
+          message={`The namespace ${namespaceId} does not exist.`}
+        />
+      );
+    }
 
-    console.log(
-      "Namespace lookup response:",
-      response.status,
-      response.statusText
-    );
-  } catch (error) {
-    console.error(
-      "Failed to check namespace:",
-      error
-    );
+    if (result.error === "Backend unavailable") {
+      return (
+        <ErrorPage
+          status={502}
+          title="Backend Unavailable"
+          message="Unable to verify the namespace."
+        />
+      );
+    }
 
     return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Backend Unavailable
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            Unable to verify the namespace.
-          </p>
-        </div>
-      </main>
+      <ErrorPage
+        status={502}
+        title="Backend Error"
+        message="Unable to verify the namespace."
+      />
     );
   }
 
-  if (response.status === 404) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Invalid Namespace
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            The namespace{" "}
-            <span className="font-mono">
-              {namespaceId}
-            </span>{" "}
-            does not exist.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!response.ok) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Backend Error
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            Unable to verify the namespace.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  const namespace = await response.json();
-
-  console.log("Namespace found:", namespace);
+  console.log("Namespace found:", result);
 
   return (
     <PidForm

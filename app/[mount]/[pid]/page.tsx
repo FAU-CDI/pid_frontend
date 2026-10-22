@@ -1,8 +1,10 @@
 import { headers } from "next/headers";
 import PidForm from "../../components/pid-form";
 import ErrorPage from "../../components/error-page";
-
-const backendUrl = process.env.BACKEND_URL;
+import {
+  getBackendClient,
+  isBackendError,
+} from "@/lib/backend/client";
 
 export default async function MountPidPage({
   params,
@@ -13,16 +15,6 @@ export default async function MountPidPage({
   }>;
 }) {
   const { mount, pid } = await params;
-
-  if (!backendUrl) {
-    return (
-      <ErrorPage
-        status={500}
-        title="Server Configuration Error"
-        message="The server is not configured correctly."
-      />
-    );
-  }
 
   const headersList = await headers();
 
@@ -41,56 +33,44 @@ export default async function MountPidPage({
     );
   }
 
-  const baseUri = `${protocol}://${host}/${mount}/`;
+  const client = getBackendClient();
+  const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
 
-  const targetUrl =
-    `${backendUrl}/resolver/mounts/` +
-    `${encodeURIComponent(baseUri)}/` +
-    `${encodeURIComponent(pid)}`;
+  console.log("Server-side mount PID request:", baseUri, pid);
 
-  console.log(
-    "Server-side mount PID request:",
-    targetUrl
-  );
+  const result = await client.getResourceByMount(baseUri, pid);
 
-  let response: Response;
+  if (isBackendError(result)) {
+    if (result.status === 500) {
+      return (
+        <ErrorPage
+          status={500}
+          title="Server Configuration Error"
+          message="The server is not configured correctly."
+        />
+      );
+    }
 
-  try {
-    response = await fetch(targetUrl, {
-      cache: "no-store",
-    });
+    if (result.status === 404) {
+      return (
+        <ErrorPage
+          status={404}
+          title="PID Not Found"
+          message="The requested PID does not exist in this mount."
+        />
+      );
+    }
 
-    console.log(
-      "Go mount PID response:",
-      response.status,
-      response.statusText
-    );
-  } catch (error) {
-    console.error(
-      "Server-side mount PID request failed:",
-      error
-    );
+    if (result.error === "Backend unavailable") {
+      return (
+        <ErrorPage
+          status={502}
+          title="Backend Unavailable"
+          message="The backend could not be reached."
+        />
+      );
+    }
 
-    return (
-      <ErrorPage
-        status={502}
-        title="Backend Unavailable"
-        message="The backend could not be reached."
-      />
-    );
-  }
-
-  if (response.status === 404) {
-    return (
-      <ErrorPage
-        status={404}
-        title="PID Not Found"
-        message="The requested PID does not exist in this mount."
-      />
-    );
-  }
-
-  if (!response.ok) {
     return (
       <ErrorPage
         status={502}
@@ -100,14 +80,20 @@ export default async function MountPidPage({
     );
   }
 
-  const data = await response.json();
-
   return (
     <PidForm
       mode="mount"
       baseUri={baseUri}
       initialPid={pid}
-      initialData={data}
+      initialData={{
+        pid: result.pid,
+        url: "url" in result ? result.url : null,
+        metadata: "metadata" in result ? result.metadata : null,
+        dateCreated: result.dateCreated,
+        dateUpdated: result.dateUpdated,
+        tags: "tags" in result ? result.tags : [],
+        deleted: result.deleted,
+      }}
     />
   );
 }

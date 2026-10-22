@@ -1,7 +1,10 @@
 import { headers } from "next/headers";
 import PidForm from "../components/pid-form";
-
-const backendUrl = process.env.BACKEND_URL;
+import ErrorPage from "../components/error-page";
+import {
+  getBackendClient,
+  isBackendError,
+} from "@/lib/backend/client";
 
 export default async function MountPage({
   params,
@@ -11,10 +14,6 @@ export default async function MountPage({
   }>;
 }) {
   const { mount } = await params;
-
-  if (!backendUrl) {
-    throw new Error("Missing BACKEND_URL");
-  }
 
   const headersList = await headers();
 
@@ -27,83 +26,48 @@ export default async function MountPage({
     throw new Error("Unable to determine host");
   }
 
-  const baseUri = `${protocol}://${host}/${mount}/`;
+  const client = getBackendClient();
+  const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
 
   console.log("Checking mount:", baseUri);
 
-  const targetUrl =
-    `${backendUrl}/resolver/mounts/` +
-    `${encodeURIComponent(baseUri)}`;
+  const result = await client.getMount(baseUri);
 
-  console.log("Checking Go mount endpoint:", targetUrl);
+  if (isBackendError(result)) {
+    if (result.status === 500) {
+      throw new Error("Missing BACKEND_URL");
+    }
 
-  let response: Response;
+    if (result.status === 404) {
+      return (
+        <ErrorPage
+          status={404}
+          title="Invalid Base URI"
+          message={`The base URI ${baseUri} is not registered.`}
+        />
+      );
+    }
 
-  try {
-    response = await fetch(targetUrl, {
-      cache: "no-store",
-    });
-
-    console.log(
-      "Mount lookup response:",
-      response.status,
-      response.statusText
-    );
-  } catch (error) {
-    console.error("Failed to check mount:", error);
+    if (result.status === 502 && result.error === "Backend unavailable") {
+      return (
+        <ErrorPage
+          status={502}
+          title="Backend Unavailable"
+          message="Unable to verify the base URI."
+        />
+      );
+    }
 
     return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Backend Unavailable
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            Unable to verify the base URI.
-          </p>
-        </div>
-      </main>
+      <ErrorPage
+        status={502}
+        title="Backend Error"
+        message="Unable to verify the base URI."
+      />
     );
   }
 
-  if (response.status === 404) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Invalid Base URI
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            The base URI{" "}
-            <span className="font-mono">{baseUri}</span>{" "}
-            is not registered.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!response.ok) {
-    return (
-      <main className="flex min-h-screen items-center justify-center p-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-red-600">
-            Backend Error
-          </h1>
-
-          <p className="mt-4 text-gray-600">
-            Unable to verify the base URI.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
-  const data = await response.json();
-
-  console.log("Mount found:", data);
+  console.log("Mount found:", result);
 
   return (
     <PidForm

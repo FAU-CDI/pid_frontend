@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type PidData = {
   pid: string;
   url: string | null;
-  metadata: string;
+  metadata: string | null;
   dateCreated: string;
   dateUpdated: string;
   tags: string[];
@@ -30,16 +30,18 @@ type PidFormProps =
 export default function PidForm(props: PidFormProps) {
   const router = useRouter();
 
-  const [pid, setPid] = useState(
-    props.initialPid ?? ""
+  const [pid, setPid] = useState(props.initialPid ?? "");
+
+  const [pidData, setPidData] = useState<PidData | null>(
+    props.initialData ?? null
   );
 
-  const [pidData, setPidData] =
-    useState<PidData | null>(
-      props.initialData ?? null
-    );
-
   const [error, setError] = useState("");
+
+  const contextLabel =
+    props.mode === "namespace"
+      ? `Namespace: ${props.namespaceId}`
+      : `Mount: ${props.baseUri}`;
 
   function showMetadata() {
     const trimmedPid = pid.trim();
@@ -58,17 +60,11 @@ export default function PidForm(props: PidFormProps) {
           props.namespaceId
         )}/${encodeURIComponent(trimmedPid)}`
       );
-
       return;
     }
 
-    const pathname = new URL(
-      props.baseUri
-    ).pathname;
-
-    router.push(
-      `${pathname}${encodeURIComponent(trimmedPid)}`
-    );
+    const pathname = new URL(props.baseUri).pathname;
+    router.push(`${pathname}${encodeURIComponent(trimmedPid)}`);
   }
 
   function resolvePid() {
@@ -87,145 +83,113 @@ export default function PidForm(props: PidFormProps) {
           props.namespaceId
         )}/${encodeURIComponent(trimmedPid)}/go`
       );
-
       return;
     }
 
-    const pathname = new URL(
-      props.baseUri
-    ).pathname;
-
-    router.push(
-      `${pathname}${encodeURIComponent(trimmedPid)}/go`
-    );
+    const pathname = new URL(props.baseUri).pathname;
+    router.push(`${pathname}${encodeURIComponent(trimmedPid)}/go`);
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <main className="flex flex-1 flex-col items-center justify-center gap-4 p-8">
-        <h1 className="text-3xl font-bold">
-          PID Resolver
-        </h1>
-
-        <div className="text-sm text-gray-600">
-          {props.mode === "namespace"
-            ? `Namespace: ${props.namespaceId}`
-            : `Mount: ${props.baseUri}`}
-        </div>
-
-        <input
-          type="text"
-          placeholder="Enter PID"
-          value={pid}
-          autoComplete="off"
-          onChange={(e) => {
-            setPid(e.target.value);
-            setError("");
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              showMetadata();
-            }
-          }}
-          className="w-80 rounded border p-2"
-        />
-
-        <div className="flex gap-4">
-          <button
-            onClick={showMetadata}
-            className="rounded bg-blue-500 px-4 py-2 text-white"
-          >
-            Show Details
-          </button>
-
-          <button
-            onClick={resolvePid}
-            className="rounded bg-green-500 px-4 py-2 text-white"
-          >
-            Redirect
-          </button>
-        </div>
-
-        {error && (
-          <div className="font-medium text-red-500">
-            {error}
+    <div className="page-shell">
+      <main className="page-main">
+        <div className="page-column">
+          <div className="page-header">
+            <h1 className="page-title">PID Resolver</h1>
+            <p className="page-lede">
+              Resolve and explore persistent identifiers.
+            </p>
+            <p className="page-context">{contextLabel}</p>
           </div>
-        )}
 
-        {pidData && (
-          <div className="w-full max-w-2xl space-y-4 rounded border p-6">
-            <h2 className="text-xl font-bold">
-              PID Details
-            </h2>
+          <div className="card">
+            <h2 className="card-title">Look up PID</h2>
+            <p className="card-hint">
+              Enter a PID to view details or redirect to its resource.
+            </p>
 
-            <div>
-              <span className="font-bold">
-                PID:
-              </span>{" "}
-              {pidData.pid}
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <input
+                type="text"
+                placeholder="Enter PID"
+                value={pid}
+                autoComplete="off"
+                onChange={(e) => {
+                  setPid(e.target.value);
+                  setError("");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    showMetadata();
+                  }
+                }}
+                className="field-input"
+              />
             </div>
 
-            <div>
-              <span className="font-bold">
-                URL:
-              </span>{" "}
-
-              {pidData.url ? (
-                <a
-                  href={pidData.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-all text-blue-600 underline"
-                >
-                  {pidData.url}
-                </a>
-              ) : (
-                "Not available"
-              )}
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+              <button onClick={showMetadata} className="btn-primary">
+                Show Details
+              </button>
+              <button onClick={resolvePid} className="btn-secondary">
+                Redirect
+              </button>
             </div>
 
-            <div>
-              <span className="font-bold">
-                Metadata:
-              </span>{" "}
-              {pidData.metadata}
-            </div>
-
-            <div>
-              <span className="font-bold">
-                Date Created:
-              </span>{" "}
-              {new Date(
-                pidData.dateCreated
-              ).toLocaleString()}
-            </div>
-
-            <div>
-              <span className="font-bold">
-                Date Updated:
-              </span>{" "}
-              {new Date(
-                pidData.dateUpdated
-              ).toLocaleString()}
-            </div>
-
-            <div>
-              <span className="font-bold">
-                Tags:
-              </span>{" "}
-              {pidData.tags?.length > 0
-                ? pidData.tags.join(", ")
-                : "None"}
-            </div>
-
-            <div>
-              <span className="font-bold">
-                Deleted:
-              </span>{" "}
-              {pidData.deleted ? "Yes" : "No"}
-            </div>
+            {error && <div className="alert-error">{error}</div>}
           </div>
-        )}
+
+          {pidData && (
+            <div className="card space-y-4">
+              <h2 className="card-title">PID Details</h2>
+
+              <div className="detail-row">
+                <span className="detail-label">PID:</span> {pidData.pid}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">URL:</span>{" "}
+                {pidData.url ? (
+                  <a
+                    href={pidData.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="detail-link"
+                  >
+                    {pidData.url}
+                  </a>
+                ) : (
+                  "Not available"
+                )}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">Metadata:</span>{" "}
+                {pidData.metadata ?? "Not available"}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">Date Created:</span>{" "}
+                {new Date(pidData.dateCreated).toLocaleString()}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">Date Updated:</span>{" "}
+                {new Date(pidData.dateUpdated).toLocaleString()}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">Tags:</span>{" "}
+                {pidData.tags?.length > 0 ? pidData.tags.join(", ") : "None"}
+              </div>
+
+              <div className="detail-row">
+                <span className="detail-label">Deleted:</span>{" "}
+                {pidData.deleted ? "Yes" : "No"}
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import MockModeBanner from "@/app/components/mock-mode-banner";
+import { getBackendClient } from "@/lib/backend/client";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,7 +13,7 @@ function LegalLink({ children, href, fallback }: {href: string|undefined, childr
   if (typeof theHref !== 'string' || theHref === '') {
     return null;
   }
-  
+
   return (<a
               href={theHref}
               target="_blank"
@@ -29,40 +31,43 @@ export default async function RootLayout({
   const imprintUrl = process.env.IMPRINT_URL;
   const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL;
   const accessibilityUrl = process.env.ACCESSIBILITY_URL;
+  const usingMockClient = getBackendClient().isMockClient();
   return (
     <html lang="en">
       <body className="flex min-h-screen flex-col">
-        <main className="flex-1">
+        <main className={`flex-1 ${usingMockClient ? "pb-28" : "pb-16"}`}>
           {children}
         </main>
 
-        <footer className="fixed bottom-0 w-full bg-blue-950 px-8 py-4 text-white">
-          <div className="flex gap-6 text-sm">
-            
-            <LegalLink href={documentationUrl} fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
-            >
-              Documentation
-            </LegalLink>
+        <div className="fixed bottom-0 z-50 w-full">
+          {usingMockClient && <MockModeBanner />}
+          <footer className="bg-blue-950 px-8 py-4 text-white">
+            <div className="flex flex-wrap items-center gap-6 text-sm">
+              <LegalLink href={documentationUrl} fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
+              >
+                Documentation
+              </LegalLink>
 
-            <LegalLink
-              href={imprintUrl}
-            >
-              Imprint
-            </LegalLink>
+              <LegalLink
+                href={imprintUrl}
+              >
+                Imprint
+              </LegalLink>
 
-            <LegalLink
-              href={privacyPolicyUrl}
-            >
-              Privacy Policy
-            </LegalLink>
+              <LegalLink
+                href={privacyPolicyUrl}
+              >
+                Privacy Policy
+              </LegalLink>
 
-            <LegalLink
-              href={accessibilityUrl}
-            >
-              Accessibility
-            </LegalLink>
-          </div>
-        </footer>
+              <LegalLink
+                href={accessibilityUrl}
+              >
+                Accessibility
+              </LegalLink>
+            </div>
+          </footer>
+        </div>
       </body>
     </html>
   );
