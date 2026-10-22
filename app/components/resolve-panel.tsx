@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ResolvedResult } from "@/lib/resolver";
 import { hrefForResolved } from "@/lib/resolve-href";
+import { DEFAULT_RESOLVE_EXAMPLE } from "@/lib/resolve-example";
 
 type GlobalProps = {
   mode: "global";
   initialQuery?: string;
+  /** Placeholder shown in the empty Resolve field. */
+  placeholder?: string;
 };
 
 type ScopedProps =
@@ -34,6 +37,7 @@ export default function ResolvePanel(props: ResolvePanelProps) {
     return (
       <GlobalResolvePanel
         initialQuery={props.initialQuery}
+        placeholder={props.placeholder}
         error={error}
         setError={setError}
         router={router}
@@ -53,11 +57,13 @@ export default function ResolvePanel(props: ResolvePanelProps) {
 
 function GlobalResolvePanel({
   initialQuery = "",
+  placeholder = DEFAULT_RESOLVE_EXAMPLE,
   error,
   setError,
   router,
 }: {
   initialQuery?: string;
+  placeholder?: string;
   error: string;
   setError: (value: string) => void;
   router: ReturnType<typeof useRouter>;
@@ -123,7 +129,7 @@ function GlobalResolvePanel({
               void resolvePid();
             }
           }}
-          placeholder="base/kqz-d5j"
+          placeholder={placeholder}
           autoComplete="off"
           className="field-input"
         />

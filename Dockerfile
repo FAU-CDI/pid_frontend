@@ -92,6 +92,9 @@ ENV IMPRINT_URL=
 ENV PRIVACY_POLICY_URL=
 ENV ACCESSIBILITY_URL=
 
+# optional homepage Resolve-field example (defaults to mock demo/123)
+ENV RESOLVE_EXAMPLE=
+
 # expose backend url and port
 EXPOSE 3000
 ENV BACKEND_URL=
