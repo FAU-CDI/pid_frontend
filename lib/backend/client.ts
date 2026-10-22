@@ -30,7 +30,7 @@ export {
   MOCK_RESOURCES,
 } from "./mock-data";
 
-function useMockClient(): boolean {
+function shouldUseMockClient(): boolean {
   const value = process.env.USE_MOCK_CLIENT?.trim().toLowerCase();
   return value === "true" || value === "1" || value === "yes";
 }
@@ -40,7 +40,7 @@ function useMockClient(): boolean {
  * using `BACKEND_URL` as the API base URI.
  */
 export function getBackendClient(): BackendClient {
-  if (useMockClient()) {
+  if (shouldUseMockClient()) {
     return new MockClient();
   }
   return new FetchClient(process.env.BACKEND_URL);
