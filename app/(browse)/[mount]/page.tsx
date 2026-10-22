@@ -7,6 +7,7 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import { serviceStatusCopy } from "@/lib/user-facing";
 
 export default async function MountPage({
   params,
@@ -48,8 +49,8 @@ export default async function MountPage({
           info={
             <StatusInfoCard
               status={404}
-              title="Invalid Base URI"
-              message={`The base URI ${baseUri} is not registered.`}
+              title="Not found"
+              message="No such namespace."
             />
           }
         />
@@ -58,6 +59,7 @@ export default async function MountPage({
 
     const unavailable =
       result.status === 502 && result.error === "Backend unavailable";
+    const copy = serviceStatusCopy(unavailable);
 
     return (
       <ResolverPage
@@ -66,8 +68,8 @@ export default async function MountPage({
         info={
           <StatusInfoCard
             status={502}
-            title={unavailable ? "Backend Unavailable" : "Backend Error"}
-            message="Unable to verify the base URI."
+            title={copy.title}
+            message={copy.message}
           />
         }
       />
@@ -91,8 +93,8 @@ export default async function MountPage({
         info={
           <StatusInfoCard
             status={namespace.status === 404 ? 404 : 502}
-            title="Namespace Error"
-            message={`Mount is registered but namespace ${result.namespace} could not be loaded.`}
+            title="Unable to load namespace"
+            message={`The namespace ${result.namespace} could not be loaded.`}
           />
         }
       />

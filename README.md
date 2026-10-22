@@ -5,12 +5,12 @@ This backend uses only public (and read-only) APIs, meaning it can be run by any
 
 ## Features
 
-- Check whether a namespace or a mounted base URI exists
-- Look up a PID within a namespace or via a mount
-- View PID details (URL, metadata, timestamps, tags, deleted status)
+- Check whether a namespace exists
+- Look up a PID within a namespace
+- Show Details for a PID (URL, metadata, timestamps, tags, deleted status)
 - Open a PID details page directly from its URL
-- Redirect to the URL associated with a PID
-- Show clear errors when a namespace, mount, or PID is missing, or when a PID has no associated URL
+- Open URL associated with a PID
+- Show clear errors when a namespace or PID is missing, or when a PID has no associated URL
 - No authentication required
 
 ## URL shapes
@@ -19,18 +19,18 @@ This backend uses only public (and read-only) APIs, meaning it can be run by any
 
 - Query page: `/resolve/{namespaceId}`
 - PID details: `/resolve/{namespaceId}/{pid}`
-- Redirect: `/resolve/{namespaceId}/{pid}/go`
+- Open URL: `/resolve/{namespaceId}/{pid}/go`
 
 **Mount**
 
 - Query page: `/{baseURI}/`
 - PID details: `/{baseURI}/{pid}`
-- Redirect: `/{baseURI}/{pid}/go`
+- Open URL: `/{baseURI}/{pid}/go`
 
 **Homepage**
 
-The homepage (`/`) includes a quick resolution field.
-Enter a path such as `baseUri/PID` (or a namespace-style path) to jump into resolution.
+The homepage (`/`) includes a Resolve field.
+Enter a namespace or PID to look it up.
 
 ## Mock mode
 

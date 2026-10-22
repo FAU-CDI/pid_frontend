@@ -34,6 +34,21 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - No special branch or commit format.
 - Before merge, keep CI green using the project’s existing scripts and workflows — do not invent alternate check commands.
 
+## User-facing copy
+
+Write UI copy for non-technical users.
+Allowed product terms: **PID**, **Namespace**, **URL**, **Resolve**.
+Do not surface implementation terms in the UI (`mount`, `base URI` / `base_URI`, `backend`, `Go`, path registration, host headers, and similar).
+Exception: the namespace card may show a **Mount:** label when a mount URL is present.
+Prefer content errors (“No such namespace”, “This PID was not found”) over implementation talk (“not registered”, “unable to verify the base URI”).
+Prefer service-focused outages (“Service unavailable”) over “backend” / “Go” language.
+Keep action labels consistent: **Resolve**, **Show Details**, **Open URL**.
+The same user-facing terminology must be used in the UI and in user-facing README sections.
+When renaming a label or error phrase in one place, update the other.
+Do not introduce synonyms for the same action (for example, do not mix “Redirect” and “Open URL”).
+Mock-mode UI is exempt.
+Developer/operator README sections (setup, env vars, mock mode, CI) may keep technical terms.
+
 ## README prose
 
 The README is for humans and must stay readable.

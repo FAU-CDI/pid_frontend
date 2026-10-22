@@ -3,6 +3,11 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import {
+  serviceNotAvailable,
+  serviceStatusCopy,
+  serviceUnavailable,
+} from "@/lib/user-facing";
 
 function errorRedirect(
   request: Request,
@@ -34,8 +39,8 @@ export async function GET(
     return errorRedirect(
       request,
       404,
-      "Not Found",
-      "The requested resource was not found."
+      "Not found",
+      "The PID was not found."
     );
   }
 
@@ -51,8 +56,8 @@ export async function GET(
       return errorRedirect(
         request,
         500,
-        "Server Configuration Error",
-        "The server is not configured correctly."
+        serviceNotAvailable.title,
+        serviceNotAvailable.message
       );
     }
 
@@ -60,8 +65,8 @@ export async function GET(
       return errorRedirect(
         request,
         404,
-        "Not Found",
-        "The namespace or PID was not found."
+        "Not found",
+        "The PID was not found."
       );
     }
 
@@ -69,17 +74,13 @@ export async function GET(
       return errorRedirect(
         request,
         502,
-        "Backend Unavailable",
-        "The backend could not be reached."
+        serviceUnavailable.title,
+        serviceUnavailable.message
       );
     }
 
-    return errorRedirect(
-      request,
-      502,
-      "Backend Error",
-      "The backend returned an error."
-    );
+    const copy = serviceStatusCopy(false);
+    return errorRedirect(request, 502, copy.title, copy.message);
   }
 
   if (!("url" in result) || !result.url) {

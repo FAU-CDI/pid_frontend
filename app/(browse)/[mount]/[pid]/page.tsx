@@ -9,6 +9,10 @@ import {
   type Resource,
 } from "@/lib/backend/client";
 import { encodeMountPath } from "@/lib/resolve-href";
+import {
+  serviceNotAvailable,
+  serviceStatusCopy,
+} from "@/lib/user-facing";
 
 function toPidInfoData(result: Resource) {
   return {
@@ -44,8 +48,8 @@ export default async function MountPidPage({
         info={
           <StatusInfoCard
             status={500}
-            title="Server Error"
-            message="Unable to determine the request host."
+            title={serviceNotAvailable.title}
+            message={serviceNotAvailable.message}
           />
         }
       />
@@ -83,8 +87,8 @@ export default async function MountPidPage({
           info={
             <StatusInfoCard
               status={500}
-              title="Server Configuration Error"
-              message="The server is not configured correctly."
+              title={serviceNotAvailable.title}
+              message={serviceNotAvailable.message}
             />
           }
         />
@@ -100,21 +104,14 @@ export default async function MountPidPage({
             <PidInfoCard
               status="not-found"
               pid={pid}
-              message="The requested PID does not exist in this mount."
+              message="This PID was not found."
             />
           }
         />
       );
     }
 
-    const title =
-      result.error === "Backend unavailable"
-        ? "Backend Unavailable"
-        : "Backend Error";
-    const message =
-      result.error === "Backend unavailable"
-        ? "The backend could not be reached."
-        : "The backend returned an error.";
+    const copy = serviceStatusCopy(result.error === "Backend unavailable");
 
     return (
       <ResolverPage
@@ -123,8 +120,8 @@ export default async function MountPidPage({
         info={
           <StatusInfoCard
             status={result.status === 502 ? 502 : result.status}
-            title={title}
-            message={message}
+            title={copy.title}
+            message={copy.message}
           />
         }
       />

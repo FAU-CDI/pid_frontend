@@ -68,7 +68,7 @@ function GlobalResolvePanel({
     const value = query.trim();
 
     if (!value) {
-      setError("Please enter a namespace, mount, or PID path.");
+      setError("Please enter a namespace or PID.");
       return;
     }
 
@@ -108,10 +108,7 @@ function GlobalResolvePanel({
   return (
     <div className="card">
       <h2 className="card-title">Resolve</h2>
-      <p className="card-hint">
-        Enter a mount path, namespace id, or PID (optionally with{" "}
-        <span className="font-mono">/go</span>).
-      </p>
+      <p className="card-hint">Enter a namespace or PID.</p>
 
       <div className="mt-4 flex flex-col gap-3 sm:flex-row">
         <input
@@ -154,8 +151,8 @@ function ScopedResolvePanel({
 
   const contextHint =
     props.scope === "namespace"
-      ? `Lookup a PID in namespace ${props.namespaceId}.`
-      : `Lookup a PID on mount ${props.baseUri}.`;
+      ? `Look up a PID in namespace ${props.namespaceId}.`
+      : "Look up a PID.";
 
   function showDetails() {
     const trimmedPid = pid.trim();
@@ -224,7 +221,7 @@ function ScopedResolvePanel({
           Show Details
         </button>
         <button type="button" onClick={redirect} className="btn-secondary">
-          Redirect
+          Open URL
         </button>
       </div>
 

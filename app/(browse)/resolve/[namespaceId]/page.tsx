@@ -6,6 +6,7 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import { serviceStatusCopy } from "@/lib/user-facing";
 
 export default async function NamespacePage({
   params,
@@ -25,7 +26,7 @@ export default async function NamespacePage({
           <StatusInfoCard
             status={400}
             title="Invalid Namespace"
-            message="No namespace ID was provided."
+            message="No namespace was provided."
           />
         }
       />
@@ -58,14 +59,7 @@ export default async function NamespacePage({
       );
     }
 
-    const title =
-      result.error === "Backend unavailable"
-        ? "Backend Unavailable"
-        : "Backend Error";
-    const message =
-      result.error === "Backend unavailable"
-        ? "Unable to verify the namespace."
-        : "Unable to verify the namespace.";
+    const copy = serviceStatusCopy(result.error === "Backend unavailable");
 
     return (
       <ResolverPage
@@ -74,8 +68,8 @@ export default async function NamespacePage({
         info={
           <StatusInfoCard
             status={result.status === 502 ? 502 : result.status}
-            title={title}
-            message={message}
+            title={copy.title}
+            message={copy.message}
           />
         }
       />
