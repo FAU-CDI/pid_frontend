@@ -35,6 +35,7 @@ export function parsePIDField(
 ): ParseResult[] {
   // This function parses a (potentially dirty) input from a parse field
   // and attempts to guess what the user meant.
+  // This should at minimum handle any sort of route the frontend handles.
   //
   // This function is pure, and purely syntactically finds possible
   // results.

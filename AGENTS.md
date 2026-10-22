@@ -28,6 +28,9 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
   Regenerate types explicitly when the backend API changes (see `lib/backend/README.md`).
 - `USE_MOCK_CLIENT` selects the in-process mock implementation versus the real fetch client.
 - `PUBLIC_BASE_URI` exists so absolute mount URIs can match backend registration when the request host differs from the public origin.
+- The homepage Resolve field must accept whatever a user might paste, not only short relative paths.
+  At minimum it must understand absolute URLs that point at this frontend’s own pages (same-host links to namespace, mount, PID, and Open URL routes).
+  Parsing lives in `lib/resolver.ts` (`parsePIDField` and related helpers): when browse routes or URL shapes change, update that parser (and its tests) in the same change.
 
 ## Git workflow
 
