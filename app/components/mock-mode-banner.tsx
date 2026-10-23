@@ -4,6 +4,7 @@ import {
   MOCK_NAMESPACE_ID,
   MOCK_PID_DELETED_WITHOUT_URL,
   MOCK_PID_DELETED_WITH_URL,
+  MOCK_PID_HUGE_METADATA,
   MOCK_PID_MISSING,
   MOCK_PID_WITHOUT_URL,
   MOCK_PID_WITH_URL,
@@ -23,6 +24,11 @@ const mountFixtures = [
     href: `${mount}/${MOCK_PID_WITHOUT_URL}`,
     label: "Active without URL",
     id: MOCK_PID_WITHOUT_URL,
+  },
+  {
+    href: `${mount}/${MOCK_PID_HUGE_METADATA}`,
+    label: "Huge metadata",
+    id: MOCK_PID_HUGE_METADATA,
   },
   {
     href: `${mount}/${MOCK_PID_DELETED_WITH_URL}`,

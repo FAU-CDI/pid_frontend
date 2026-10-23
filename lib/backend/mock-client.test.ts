@@ -10,6 +10,6 @@ describe("MockClient getResourceCount", () => {
       return;
     }
     expect(result.total).toBe(Object.keys(MOCK_RESOURCES).length);
-    expect(result.total).toBe(4);
+    expect(result.total).toBe(5);
   });
 });

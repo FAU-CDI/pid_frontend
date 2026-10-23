@@ -22,6 +22,9 @@ export const MOCK_PID_WITH_URL = "123";
 /** Active PID with no target URL. */
 export const MOCK_PID_WITHOUT_URL = "456";
 
+/** Active PID with a large metadata payload (for ExpandableMono overflow). */
+export const MOCK_PID_HUGE_METADATA = "345";
+
 /** Deleted PID that still has a target URL. */
 export const MOCK_PID_DELETED_WITH_URL = "789";
 
@@ -33,6 +36,18 @@ export const MOCK_PID_MISSING = "999";
 
 const MOCK_DATE_CREATED = "2026-01-01T00:00:00Z";
 const MOCK_DATE_UPDATED = "2026-06-15T12:00:00Z";
+
+/** Multi-line payload tall enough to overflow the collapsed metadata block. */
+const MOCK_HUGE_METADATA = [
+  "{",
+  ...Array.from({ length: 60 }, (_, i) => {
+    const key = `field_${String(i).padStart(3, "0")}`;
+    const value = `mock value ${i} - padding so lines stay wide in the UI`;
+    const comma = i < 59 ? "," : "";
+    return `  "${key}": "${value}"${comma}`;
+  }),
+  "}",
+].join("\n");
 
 /** Hard-coded mock namespace (`000`). */
 export const MOCK_NAMESPACE: Namespace = {
@@ -86,6 +101,12 @@ export const MOCK_RESOURCES: Readonly<Record<string, ResourceResponse>> = {
     null,
     false,
     "Active mock resource without URL"
+  ),
+  [MOCK_PID_HUGE_METADATA]: resource(
+    MOCK_PID_HUGE_METADATA,
+    "https://example.org/mock-345",
+    false,
+    MOCK_HUGE_METADATA
   ),
   [MOCK_PID_DELETED_WITH_URL]: resource(
     MOCK_PID_DELETED_WITH_URL,
