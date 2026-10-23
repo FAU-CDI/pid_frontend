@@ -9,6 +9,7 @@ import {
   type Namespace,
   type Resource,
   type ResourceByMount,
+  type ResourceCount,
 } from "./base";
 import type { paths } from "./schema";
 
@@ -236,6 +237,39 @@ export class FetchClient extends BackendClient {
     }
   }
 
+  async getResourceCount(): Promise<BackendResult<ResourceCount>> {
+    const api = this.#requireApi();
+    if (isBackendError(api)) {
+      return api;
+    }
+
+    try {
+      this.#log("Requesting Go resource count:", "/resolver/resources/count");
+
+      const { data, error, response } = await api.GET(
+        "/resolver/resources/count"
+      );
+
+      this.#log("Go backend response:", response.status, response.statusText);
+
+      if (!response.ok) {
+        return await this.#httpError(
+          response,
+          "Go backend returned an error",
+          error
+        );
+      }
+
+      if (data) {
+        return data;
+      }
+
+      return { error: "Go backend returned an error", status: 502 };
+    } catch (error) {
+      return this.#unavailable("Resource count failed:", error);
+    }
+  }
+
   /** Info traces; mute centrally here later. */
   #log(...args: unknown[]): void {
     console.log(...args);
@@ -324,7 +358,9 @@ function errorCodeFromOpenApiBody(body: unknown): ApiErrorCode | undefined {
   return undefined;
 }
 
-async function readErrorCode(response: Response): Promise<string | undefined> {
+async function readErrorCode(
+  response: Response
+): Promise<ApiErrorCode | undefined> {
   try {
     const body = (await response.json()) as { error?: unknown };
     return errorCodeFromOpenApiBody(body);

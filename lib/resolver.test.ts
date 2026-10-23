@@ -141,7 +141,7 @@ describe("resolve soft misses", () => {
         return {
           error: "invalid",
           status: 400,
-          code: "invalidPid",
+          code: "invalidPid" as const,
         };
       }
     }

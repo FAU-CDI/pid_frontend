@@ -82,6 +82,31 @@ describe("FetchClient non-2xx success bodies", () => {
   });
 });
 
+describe("FetchClient getResourceCount", () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  it("returns total from 200 JSON body", async () => {
+    global.fetch = jest.fn(async () => {
+      return new Response(JSON.stringify({ total: 42 }), {
+        status: 200,
+        statusText: "OK",
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const result = await new FetchClient(API_BASE).getResourceCount();
+    expect(isBackendError(result)).toBe(false);
+    if (isBackendError(result)) {
+      return;
+    }
+    expect(result.total).toBe(42);
+  });
+});
+
 describe("FetchClient preserves Go API error codes", () => {
   const originalFetch = global.fetch;
 

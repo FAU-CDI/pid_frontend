@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import AboutInfoCard from "@/app/components/about-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
-import { getBackendClient } from "@/lib/backend/client";
+import { getBackendClient, isBackendError } from "@/lib/backend/client";
 import { hrefForResolved } from "@/lib/resolve-href";
 import { resolveFirst } from "@/lib/resolver";
 
@@ -14,6 +14,7 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
+  const client = getBackendClient();
 
   let error: string | undefined;
 
@@ -28,12 +29,7 @@ export default async function HomePage({
 
     const hostname = host.split(":")[0];
     const publicBase = `${protocol}://${host}`;
-    const result = await resolveFirst(
-      q,
-      publicBase,
-      getBackendClient(),
-      hostname
-    );
+    const result = await resolveFirst(q, publicBase, client, hostname);
 
     if (result === null) {
       error = "No matching namespace or PID.";
@@ -42,13 +38,16 @@ export default async function HomePage({
     }
   }
 
+  const countResult = await client.getResourceCount();
+  const pidCount = isBackendError(countResult) ? undefined : countResult.total;
+
   return (
     <ResolverPage
       breadcrumbs={[homeBreadcrumb()]}
       resolve={
         <GlobalResolveForm defaultQuery={q} error={error} />
       }
-      info={<AboutInfoCard />}
+      info={<AboutInfoCard pidCount={pidCount} />}
     />
   );
 }

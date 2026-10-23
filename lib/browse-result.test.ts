@@ -43,7 +43,11 @@ describe("browseErrorAction", () => {
       browseErrorAction({ error: "Server configuration error", status: 500 })
     ).toBe("error");
     expect(
-      browseErrorAction({ error: "bad request", status: 400, code: "other" })
+      browseErrorAction({
+        error: "bad request",
+        status: 400,
+        code: "bodyMissing",
+      })
     ).toBe("error");
   });
 });
@@ -108,7 +112,11 @@ describe("browseNotFoundKind", () => {
       browseNotFoundKind({ error: "Backend unavailable", status: 502 })
     ).toBeNull();
     expect(
-      browseNotFoundKind({ error: "bad", status: 400, code: "other" })
+      browseNotFoundKind({
+        error: "bad",
+        status: 400,
+        code: "bodyMissing",
+      })
     ).toBeNull();
   });
 });

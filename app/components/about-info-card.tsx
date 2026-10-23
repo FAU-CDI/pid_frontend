@@ -1,4 +1,9 @@
-export default function AboutInfoCard() {
+type AboutInfoCardProps = {
+  /** Total issued PIDs when the count API succeeds. */
+  pidCount?: number;
+};
+
+export default function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
   return (
     <div className="space-y-6">
       <div className="card">
@@ -7,6 +12,11 @@ export default function AboutInfoCard() {
           This service allows users to resolve PIDs and retrieve information
           about the resources they identify.
         </p>
+        {typeof pidCount === "number" ? (
+          <p className="card-body">
+            This resolver currently holds {pidCount.toLocaleString()} PIDs.
+          </p>
+        ) : null}
       </div>
 
       <a

@@ -12,6 +12,7 @@ export {
   type Namespace,
   type Resource,
   type ResourceByMount,
+  type ResourceCount,
 } from "./base";
 
 export { FetchClient } from "./fetch-client";

@@ -8,6 +8,7 @@ import {
   type Namespace,
   type Resource,
   type ResourceByMount,
+  type ResourceCount,
 } from "./base";
 import type { components } from "./schema";
 import {
@@ -105,6 +106,10 @@ export class MockClient extends BackendClient {
 
     // Match unauthenticated Go API: deleted → redacted (410 body shape).
     return asPublicResource(found);
+  }
+
+  async getResourceCount(): Promise<BackendResult<ResourceCount>> {
+    return { total: Object.keys(MOCK_RESOURCES).length };
   }
 }
 

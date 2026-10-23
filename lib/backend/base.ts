@@ -31,6 +31,7 @@ export type Namespace = components["schemas"]["Namespace"];
 export type Resource =
   | components["schemas"]["ResourceResponse"]
   | components["schemas"]["RedactedResourceResponse"];
+export type ResourceCount = components["schemas"]["ResourceCountResponse"];
 
 /** Mount+PID lookup success: resource body plus namespace id from the 302 Location. */
 export type ResourceByMount = Resource & { namespace: string };
@@ -118,4 +119,11 @@ export abstract class BackendClient {
     namespaceId: string,
     pid: string
   ): Promise<BackendResult<Resource>>;
+
+  /**
+   * GET /resolver/resources/count
+   *
+   * Total issued PIDs across all namespaces (includes soft-deleted).
+   */
+  abstract getResourceCount(): Promise<BackendResult<ResourceCount>>;
 }
