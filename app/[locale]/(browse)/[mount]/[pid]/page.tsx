@@ -1,14 +1,17 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import PidInfoCard from "@/app/components/pid-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
   type ResourceByMount,
 } from "@/lib/backend/client";
+import { errorBreadcrumb, homeBreadcrumb } from "@/lib/breadcrumbs";
 import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
 import { encodeMountPath } from "@/lib/resolve-href";
 import { namespaceMissing } from "@/lib/user-facing";
@@ -36,6 +39,9 @@ export default async function MountPidPage({
   }>;
 }) {
   const { mount, pid } = await params;
+  const t = await getTranslations("errors");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
 
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") || "http";
@@ -48,6 +54,8 @@ export default async function MountPidPage({
   const client = getBackendClient();
   const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
   const mountHref = `/${encodeMountPath(mount)}`;
+  const mountLabel = <BackendCode>{mount}</BackendCode>;
+  const pidLabel = <BackendCode>{pid}</BackendCode>;
 
   const result = await client.getResourceByMount(baseUri, pid);
 
@@ -56,13 +64,13 @@ export default async function MountPidPage({
       if (browseNotFoundKind(result) === "scope-missing") {
         return (
           <ResolverPage
-            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            breadcrumbs={[home, errorCrumb]}
             resolve={<GlobalResolveForm defaultQuery={`${mount}/${pid}`} />}
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
-                title={namespaceMissing.title}
-                message={namespaceMissing.message}
+                title={t("namespaceMissing.title")}
+                message={t("namespaceMissing.message")}
               />
             }
           />
@@ -72,9 +80,9 @@ export default async function MountPidPage({
       return (
         <ResolverPage
           breadcrumbs={[
-            homeBreadcrumb(),
-            { href: mountHref, label: mount },
-            { label: "Error" },
+            home,
+            { href: mountHref, label: mountLabel },
+            errorCrumb,
           ]}
           resolve={
             <ResolvePanel
@@ -95,9 +103,9 @@ export default async function MountPidPage({
   return (
     <ResolverPage
       breadcrumbs={[
-        homeBreadcrumb(),
-        { href: mountHref, label: mount },
-        { label: pid },
+        home,
+        { href: mountHref, label: mountLabel },
+        { label: pidLabel },
       ]}
       resolve={
         <ResolvePanel

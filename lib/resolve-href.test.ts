@@ -8,6 +8,7 @@ import {
 import { hrefForResolved } from "./resolve-href";
 
 const publicBase = "https://resolver.test";
+const locale = "en";
 
 describe("hrefForResolved", () => {
   it("links namespace results to the namespace page", () => {
@@ -18,9 +19,10 @@ describe("hrefForResolved", () => {
           namespace: MOCK_NAMESPACE_ID,
           exists: true,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/resolve/${MOCK_NAMESPACE_ID}`);
+    ).toBe(`/${locale}/resolve/${MOCK_NAMESPACE_ID}`);
   });
 
   it("links missing namespaces to the namespace page", () => {
@@ -31,9 +33,10 @@ describe("hrefForResolved", () => {
           namespace: "111",
           exists: false,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe("/resolve/111");
+    ).toBe(`/${locale}/resolve/111`);
   });
 
   it("links mount namespace results to the mount path", () => {
@@ -45,9 +48,10 @@ describe("hrefForResolved", () => {
           namespace: MOCK_NAMESPACE_ID,
           exists: true,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/${MOCK_MOUNT_PATH}`);
+    ).toBe(`/${locale}/${MOCK_MOUNT_PATH}`);
   });
 
   it("links existing resources to the details page", () => {
@@ -60,9 +64,10 @@ describe("hrefForResolved", () => {
           go: false,
           exists: true,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/resolve/${MOCK_NAMESPACE_ID}/${MOCK_PID_WITH_URL}`);
+    ).toBe(`/${locale}/resolve/${MOCK_NAMESPACE_ID}/${MOCK_PID_WITH_URL}`);
   });
 
   it("links existing resources with go to the Open URL route", () => {
@@ -76,9 +81,10 @@ describe("hrefForResolved", () => {
           go: true,
           exists: true,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/${MOCK_MOUNT_PATH}/${MOCK_PID_WITH_URL}/go`);
+    ).toBe(`/${locale}/${MOCK_MOUNT_PATH}/${MOCK_PID_WITH_URL}/go`);
   });
 
   it("links missing PIDs to the details page, never /go", () => {
@@ -91,9 +97,10 @@ describe("hrefForResolved", () => {
           go: true,
           exists: false,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/resolve/${MOCK_NAMESPACE_ID}/${MOCK_PID_MISSING}`);
+    ).toBe(`/${locale}/resolve/${MOCK_NAMESPACE_ID}/${MOCK_PID_MISSING}`);
 
     expect(
       hrefForResolved(
@@ -104,8 +111,23 @@ describe("hrefForResolved", () => {
           go: true,
           exists: false,
         },
-        publicBase
+        publicBase,
+        locale
       )
-    ).toBe(`/${MOCK_MOUNT_PATH}/${MOCK_PID_MISSING}`);
+    ).toBe(`/${locale}/${MOCK_MOUNT_PATH}/${MOCK_PID_MISSING}`);
+  });
+
+  it("prefixes the active UI locale (e.g. de)", () => {
+    expect(
+      hrefForResolved(
+        {
+          kind: "namespace",
+          namespace: MOCK_NAMESPACE_ID,
+          exists: true,
+        },
+        publicBase,
+        "de"
+      )
+    ).toBe(`/de/resolve/${MOCK_NAMESPACE_ID}`);
   });
 });

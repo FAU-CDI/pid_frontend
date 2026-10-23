@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 type CopyButtonProps = {
@@ -15,6 +16,7 @@ export default function CopyButton({
   label,
   caption,
 }: CopyButtonProps) {
+  const t = useTranslations("a11y");
   const [copied, setCopied] = useState(false);
   const resetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -42,7 +44,8 @@ export default function CopyButton({
     }, 1500);
   }
 
-  const title = copied ? "Copied" : `Copy ${label}`;
+  const copiedLabel = t("copied");
+  const title = copied ? copiedLabel : t("copy", { label });
 
   return (
     <button
@@ -55,11 +58,11 @@ export default function CopyButton({
       {copied ? <CheckIcon /> : <ClipboardIcon />}
       {caption ? (
         <span className="copy-button-caption">
-          {copied ? "Copied" : caption}
+          {copied ? copiedLabel : caption}
         </span>
       ) : null}
       <span className="sr-only" role="status" aria-live="polite">
-        {copied ? "Copied" : ""}
+        {copied ? copiedLabel : ""}
       </span>
     </button>
   );

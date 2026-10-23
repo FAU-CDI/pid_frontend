@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import {
   MOCK_MOUNT_PATH,
   MOCK_NAMESPACE_ID,
@@ -78,7 +78,10 @@ function FixtureLink({
 
 export default function MockModeBanner() {
   return (
-    <details className="group relative bg-red-900 text-red-50 open:shadow-lg">
+    <details
+      lang="en"
+      className="group relative bg-red-900 text-red-50 open:shadow-lg"
+    >
       <summary className="mock-banner-summary">
         <span className="inline-flex items-center gap-2">
           <span

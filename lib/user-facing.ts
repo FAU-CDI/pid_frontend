@@ -1,55 +1,64 @@
-/** Shared user-facing status titles and messages (plain language). */
+/**
+ * Shared user-facing status codes and message catalog keys (plain language).
+ * Titles/messages live in messages/{locale}.json under `errors.*`.
+ */
+
+export type ErrorMessageKey =
+  | "serviceUnavailable"
+  | "serviceError"
+  | "serviceNotAvailable"
+  | "pidHasNoUrl"
+  | "pidNotFound"
+  | "pidNoLongerAvailable"
+  | "namespaceMissing"
+  | "pageNotFound"
+  | "generic";
 
 export const serviceUnavailable = {
-  title: "Service unavailable",
-  message: "The service could not be reached.",
+  status: 502,
+  key: "serviceUnavailable",
 } as const;
 
 export const serviceError = {
-  title: "Service error",
-  message: "Something went wrong while contacting the service.",
+  status: 502,
+  key: "serviceError",
 } as const;
 
 export const serviceNotAvailable = {
-  title: "Service unavailable",
-  message: "This service is not available right now.",
+  status: 500,
+  key: "serviceNotAvailable",
 } as const;
 
 export const pidHasNoUrl = {
   status: 404,
-  title: "URL not found",
-  message: "This PID does not have a URL associated with it.",
+  key: "pidHasNoUrl",
 } as const;
 
 export const pidNotFound = {
   status: 404,
-  title: "Not found",
-  message: "This PID was not found.",
+  key: "pidNotFound",
 } as const;
 
 /** Soft-deleted / redacted PID shown on details cards (not an HTTP error page). */
 export const pidNoLongerAvailable = {
-  badge: "Deleted",
-  message: "This PID no longer exists.",
+  key: "pidNoLongerAvailable",
 } as const;
 
 /** Missing mount or namespace (plain error UI; no scoped breadcrumbs). */
 export const namespaceMissing = {
   status: 404,
-  title: "Not found",
-  message: "No such namespace.",
+  key: "namespaceMissing",
 } as const;
 
-/** Shared copy for `not-found.tsx` (HTTP 404). */
+/** Shared copy key for `not-found.tsx` (HTTP 404). */
 export const pageNotFound = {
-  title: "Not found",
-  message: "The requested page or resource was not found.",
+  status: 404,
+  key: "pageNotFound",
 } as const;
 
-/** Map a backend-unavailable flag to the matching user-facing status copy. */
-export function serviceStatusCopy(unavailable: boolean): {
-  title: string;
-  message: string;
-} {
-  return unavailable ? serviceUnavailable : serviceError;
+/** Map a backend-unavailable flag to the matching error catalog key. */
+export function serviceStatusKey(
+  unavailable: boolean
+): "serviceUnavailable" | "serviceError" {
+  return unavailable ? "serviceUnavailable" : "serviceError";
 }

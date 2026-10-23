@@ -11,20 +11,26 @@ This backend uses only public (and read-only) APIs, meaning it can be run by any
 - Open a PID details page directly from its URL
 - Open URL associated with a PID
 - Show clear errors when a namespace or PID is missing, or when a PID has no associated URL
+- English and German UI (path-based locales; language switcher in the header)
 - No authentication required
 
 ## URL shapes
 
-| Pattern                 | Path                                   | Notes                                                                 |
-|-------------------------|----------------------------------------|-----------------------------------------------------------------------|
-| Homepage                | `/`                                    | Show Details field; **200**                                           |
-| Homepage lookup         | `/?q={query}`                          | **307** on match; form + message on miss (**200**)                    |
-| Namespace query         | `/resolve/{namespaceId}`               | **200**; missing namespace keeps contextual UI                        |
-| Namespace PID details   | `/resolve/{namespaceId}/{pid}`         | **200**; missing/deleted PID keeps details UI                         |
-| Namespace Open URL      | `/resolve/{namespaceId}/{pid}/go`      | **307** to target, or result UI (**200**)                             |
-| Mount query             | `/{baseURI}/`                          | **200**; missing mount keeps contextual UI                            |
-| Mount PID details       | `/{baseURI}/{pid}`                     | **200**; missing/deleted PID keeps details UI                         |
-| Mount Open URL          | `/{baseURI}/{pid}/go`                  | **307** to target, or result UI (**200**)                             |
+Canonical pages always include a locale prefix (`en` or `de`).
+Unprefixed URLs (e.g. `/resolve/demo`) **307** to `/{locale}/…` using the `Accept-Language` header (fallback `en`); no locale cookie is set.
+The header language switcher changes only the locale segment of the current path (URL-only preference).
+
+| Pattern                 | Path                                         | Notes                                                                 |
+|-------------------------|----------------------------------------------|-----------------------------------------------------------------------|
+| Homepage                | `/{locale}`                                  | Show Details field; **200**                                           |
+| Homepage lookup         | `/{locale}/?q={query}`                       | **307** on match; form + message on miss (**200**)                    |
+| Namespace query         | `/{locale}/resolve/{namespaceId}`            | **200**; missing namespace keeps contextual UI                        |
+| Namespace PID details   | `/{locale}/resolve/{namespaceId}/{pid}`      | **200**; missing/deleted PID keeps details UI                         |
+| Namespace Open URL      | `/{locale}/resolve/{namespaceId}/{pid}/go`   | **307** to target, or result UI (**200**)                             |
+| Mount query             | `/{locale}/{baseURI}/`                       | **200**; missing mount keeps contextual UI                            |
+| Mount PID details       | `/{locale}/{baseURI}/{pid}`                  | **200**; missing/deleted PID keeps details UI                         |
+| Mount Open URL          | `/{locale}/{baseURI}/{pid}/go`               | **307** to target, or result UI (**200**)                             |
+| Unprefixed entry        | `/…` (no locale)                             | **307** to `/{locale}/…` via Accept-Language (fallback `en`)          |
 
 Guaranteed HTTP statuses from this frontend: **307** on successful redirects, **5xx** when the page throws (service failure), and **404** for unmatched routes.
 Missing namespace/PID pages keep breadcrumbs and Resolve controls, so those responses are **200** with an error card (App Router cannot set 404 while keeping that UI).

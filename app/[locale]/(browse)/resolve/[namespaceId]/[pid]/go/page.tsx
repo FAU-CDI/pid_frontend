@@ -1,13 +1,20 @@
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import PidInfoCard from "@/app/components/pid-info-card";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import {
+  errorBreadcrumb,
+  homeBreadcrumb,
+  urlBreadcrumb,
+} from "@/lib/breadcrumbs";
 import {
   browseErrorAction,
   browseNotFoundKind,
@@ -28,19 +35,25 @@ export default async function NamespacePidGoPage({
   }>;
 }) {
   const { namespaceId, pid } = await params;
+  const t = await getTranslations("errors");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
+  const urlCrumb = await urlBreadcrumb();
   const namespaceHref = `/resolve/${encodeURIComponent(namespaceId)}`;
   const detailsHref = `${namespaceHref}/${encodeURIComponent(pid)}`;
+  const nsLabel = <BackendCode>{namespaceId}</BackendCode>;
+  const pidLabel = <BackendCode>{pid}</BackendCode>;
 
   if (!namespaceId.trim() || !pid.trim()) {
     return (
       <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+        breadcrumbs={[home, errorCrumb]}
         resolve={<GlobalResolveForm />}
         info={
           <StatusInfoCard
             status={pidNotFound.status}
-            title={pidNotFound.title}
-            message={pidNotFound.message}
+            title={t("pidNotFound.title")}
+            message={t("pidNotFound.message")}
           />
         }
       />
@@ -57,7 +70,7 @@ export default async function NamespacePidGoPage({
       if (browseNotFoundKind(result) === "scope-missing") {
         return (
           <ResolverPage
-            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            breadcrumbs={[home, errorCrumb]}
             resolve={
               <GlobalResolveForm
                 defaultQuery={`resolve/${namespaceId}/${pid}`}
@@ -66,8 +79,8 @@ export default async function NamespacePidGoPage({
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
-                title={namespaceMissing.title}
-                message={namespaceMissing.message}
+                title={t("namespaceMissing.title")}
+                message={t("namespaceMissing.message")}
               />
             }
           />
@@ -77,9 +90,9 @@ export default async function NamespacePidGoPage({
       return (
         <ResolverPage
           breadcrumbs={[
-            homeBreadcrumb(),
-            { href: namespaceHref, label: namespaceId },
-            { label: "Error" },
+            home,
+            { href: namespaceHref, label: nsLabel },
+            errorCrumb,
           ]}
           resolve={
             <ResolvePanel
@@ -98,10 +111,10 @@ export default async function NamespacePidGoPage({
   }
 
   const crumbs = [
-    homeBreadcrumb(),
-    { href: namespaceHref, label: namespaceId },
-    { href: detailsHref, label: pid },
-    { label: "URL" },
+    home,
+    { href: namespaceHref, label: nsLabel },
+    { href: detailsHref, label: pidLabel },
+    urlCrumb,
   ] as const;
 
   const resolvePanel = (
@@ -126,8 +139,8 @@ export default async function NamespacePidGoPage({
       info={
         <StatusInfoCard
           status={pidHasNoUrl.status}
-          title={pidHasNoUrl.title}
-          message={pidHasNoUrl.message}
+          title={t("pidHasNoUrl.title")}
+          message={t("pidHasNoUrl.message")}
         />
       }
     />

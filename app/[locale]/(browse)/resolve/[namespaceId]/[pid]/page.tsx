@@ -1,13 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import PidInfoCard from "@/app/components/pid-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
   type Resource,
 } from "@/lib/backend/client";
+import { errorBreadcrumb, homeBreadcrumb } from "@/lib/breadcrumbs";
 import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
 import { namespaceMissing } from "@/lib/user-facing";
 
@@ -34,8 +37,13 @@ export default async function NamespacePidPage({
   }>;
 }) {
   const { namespaceId, pid } = await params;
+  const t = await getTranslations("errors");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
 
   const namespaceHref = `/resolve/${encodeURIComponent(namespaceId)}`;
+  const nsLabel = <BackendCode>{namespaceId}</BackendCode>;
+  const pidLabel = <BackendCode>{pid}</BackendCode>;
 
   const result = await getBackendClient().getResourceByNamespace(
     namespaceId,
@@ -47,7 +55,7 @@ export default async function NamespacePidPage({
       if (browseNotFoundKind(result) === "scope-missing") {
         return (
           <ResolverPage
-            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            breadcrumbs={[home, errorCrumb]}
             resolve={
               <GlobalResolveForm
                 defaultQuery={`resolve/${namespaceId}/${pid}`}
@@ -56,8 +64,8 @@ export default async function NamespacePidPage({
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
-                title={namespaceMissing.title}
-                message={namespaceMissing.message}
+                title={t("namespaceMissing.title")}
+                message={t("namespaceMissing.message")}
               />
             }
           />
@@ -67,9 +75,9 @@ export default async function NamespacePidPage({
       return (
         <ResolverPage
           breadcrumbs={[
-            homeBreadcrumb(),
-            { href: namespaceHref, label: namespaceId },
-            { label: "Error" },
+            home,
+            { href: namespaceHref, label: nsLabel },
+            errorCrumb,
           ]}
           resolve={
             <ResolvePanel
@@ -90,9 +98,9 @@ export default async function NamespacePidPage({
   return (
     <ResolverPage
       breadcrumbs={[
-        homeBreadcrumb(),
-        { href: namespaceHref, label: namespaceId },
-        { label: pid },
+        home,
+        { href: namespaceHref, label: nsLabel },
+        { label: pidLabel },
       ]}
       resolve={
         <ResolvePanel

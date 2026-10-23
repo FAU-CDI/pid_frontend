@@ -1,13 +1,16 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import NamespaceInfoCard from "@/app/components/namespace-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import { errorBreadcrumb, homeBreadcrumb } from "@/lib/breadcrumbs";
 import { browseErrorAction } from "@/lib/browse-result";
 import { namespaceMissing } from "@/lib/user-facing";
 
@@ -19,6 +22,9 @@ export default async function MountPage({
   }>;
 }) {
   const { mount } = await params;
+  const t = await getTranslations("errors");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
 
   const headersList = await headers();
   const protocol = headersList.get("x-forwarded-proto") || "http";
@@ -31,7 +37,10 @@ export default async function MountPage({
   const client = getBackendClient();
   const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
 
-  const crumbs = [homeBreadcrumb(), { label: mount }] as const;
+  const crumbs = [
+    home,
+    { label: <BackendCode>{mount}</BackendCode> },
+  ] as const;
 
   const result = await client.getMount(baseUri);
 
@@ -39,13 +48,13 @@ export default async function MountPage({
     if (browseErrorAction(result) === "not-found") {
       return (
         <ResolverPage
-          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          breadcrumbs={[home, errorCrumb]}
           resolve={<GlobalResolveForm defaultQuery={mount} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}
-              title={namespaceMissing.title}
-              message={namespaceMissing.message}
+              title={t("namespaceMissing.title")}
+              message={t("namespaceMissing.message")}
             />
           }
         />
@@ -60,13 +69,13 @@ export default async function MountPage({
     if (browseErrorAction(namespace) === "not-found") {
       return (
         <ResolverPage
-          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          breadcrumbs={[home, errorCrumb]}
           resolve={<GlobalResolveForm defaultQuery={mount} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}
-              title={namespaceMissing.title}
-              message={namespaceMissing.message}
+              title={t("namespaceMissing.title")}
+              message={t("namespaceMissing.message")}
             />
           }
         />

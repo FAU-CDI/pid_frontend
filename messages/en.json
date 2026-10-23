@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "PID Resolver",
+    "description": "Resolve and explore persistent identifiers."
+  },
+  "nav": {
+    "skipToContent": "Skip to content",
+    "productName": "PID Resolver",
+    "home": "Home",
+    "breadcrumb": "Breadcrumb",
+    "footer": "Footer",
+    "language": "Language",
+    "localeEn": "English",
+    "localeDe": "German",
+    "errorCrumb": "Error",
+    "notFoundCrumb": "Not found",
+    "urlCrumb": "URL"
+  },
+  "footer": {
+    "documentation": "Documentation",
+    "api": "API",
+    "imprint": "Imprint",
+    "privacy": "Privacy Policy",
+    "accessibility": "Accessibility"
+  },
+  "home": {
+    "aboutTitle": "About PID Resolver",
+    "aboutBody": "This service allows users to resolve PIDs and retrieve information about the resources they identify.",
+    "pidCount": "This resolver currently holds {count} PIDs.",
+    "docsTitle": "Documentation",
+    "docsHint": "Read the documentation and learn more about the PID Resolver.",
+    "noMatch": "No matching namespace or PID."
+  },
+  "resolve": {
+    "showDetails": "Show Details",
+    "openUrl": "Open URL",
+    "namespaceOrPid": "Namespace or PID",
+    "pid": "PID",
+    "pidUnder": "PID under {prefix}",
+    "pleaseEnterPid": "Please enter a PID."
+  },
+  "namespace": {
+    "eyebrow": "Namespace",
+    "idLabel": "Namespace ID",
+    "mount": "Mount",
+    "pidFormat": "PID format",
+    "tags": "Tags",
+    "created": "Created",
+    "updated": "Updated",
+    "invalidTitle": "Invalid Namespace",
+    "invalidMessage": "No namespace was provided."
+  },
+  "pid": {
+    "eyebrow": "PID",
+    "url": "URL",
+    "none": "None",
+    "metadata": "Metadata",
+    "tags": "Tags",
+    "created": "Created",
+    "updated": "Updated",
+    "copyGroup": "Copy",
+    "copyPid": "PID",
+    "copyFull": "Full",
+    "copyFullLabel": "full path",
+    "copyUrl": "URL",
+    "copyMetadata": "metadata",
+    "copyNamespaceId": "namespace ID",
+    "copyMount": "Mount"
+  },
+  "errors": {
+    "serviceUnavailable": {
+      "title": "Service unavailable",
+      "message": "The service could not be reached."
+    },
+    "serviceError": {
+      "title": "Service error",
+      "message": "Something went wrong while contacting the service."
+    },
+    "serviceNotAvailable": {
+      "title": "Service unavailable",
+      "message": "This service is not available right now."
+    },
+    "pidHasNoUrl": {
+      "title": "URL not found",
+      "message": "This PID does not have a URL associated with it."
+    },
+    "pidNotFound": {
+      "title": "Not found",
+      "message": "This PID was not found."
+    },
+    "pidNoLongerAvailable": {
+      "badge": "Deleted",
+      "message": "This PID no longer exists."
+    },
+    "namespaceMissing": {
+      "title": "Not found",
+      "message": "No such namespace."
+    },
+    "pageNotFound": {
+      "title": "Not found",
+      "message": "The requested page or resource was not found."
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "message": "An unexpected error occurred."
+    },
+    "tryAgain": "Try again"
+  },
+  "a11y": {
+    "opensInNewTab": " (opens in new tab)",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "copied": "Copied",
+    "copy": "Copy {label}"
+  }
+}

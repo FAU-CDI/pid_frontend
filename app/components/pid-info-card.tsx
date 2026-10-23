@@ -1,7 +1,10 @@
+"use client";
+
+import { useLocale, useTranslations } from "next-intl";
 import CopyButton from "@/app/components/copy-button";
 import ExpandableMono from "@/app/components/expandable-mono";
+import { BackendCode, BackendContent } from "@/app/components/lang";
 import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
-import { pidNoLongerAvailable, pidNotFound } from "@/lib/user-facing";
 
 export type PidInfoData = {
   pid: string;
@@ -28,9 +31,13 @@ type PidInfoCardProps =
     };
 
 export default function PidInfoCard(props: PidInfoCardProps) {
+  const t = useTranslations("pid");
+  const te = useTranslations("errors");
+  const locale = useLocale();
+
   if (props.status === "not-found") {
-    const title = pidNotFound.title;
-    const message = props.message ?? pidNotFound.message;
+    const title = te("pidNotFound.title");
+    const message = props.message ?? te("pidNotFound.message");
     return (
       <div className="card detail-stack">
         <div className="detail-header">
@@ -50,8 +57,10 @@ export default function PidInfoCard(props: PidInfoCardProps) {
     return (
       <div className="card detail-stack">
         <div className="detail-header">
-          <p className="detail-eyebrow">PID</p>
-          <span className="status-gone-badge">{pidNoLongerAvailable.badge}</span>
+          <p className="detail-eyebrow">{t("eyebrow")}</p>
+          <span className="status-gone-badge">
+            {te("pidNoLongerAvailable.badge")}
+          </span>
         </div>
         <PidHero
           scope={data.scope}
@@ -60,11 +69,12 @@ export default function PidInfoCard(props: PidInfoCardProps) {
           muted
         />
         <div className="status-gone" role="status">
-          {pidNoLongerAvailable.message}
+          {te("pidNoLongerAvailable.message")}
         </div>
         <DetailDates
           dateCreated={data.dateCreated}
           dateUpdated={data.dateUpdated}
+          locale={locale}
         />
       </div>
     );
@@ -72,15 +82,11 @@ export default function PidInfoCard(props: PidInfoCardProps) {
 
   return (
     <div className="card detail-stack">
-      <p className="detail-eyebrow">PID</p>
-      <PidHero
-        scope={data.scope}
-        pid={data.pid}
-        absolute={data.absolute}
-      />
+      <p className="detail-eyebrow">{t("eyebrow")}</p>
+      <PidHero scope={data.scope} pid={data.pid} absolute={data.absolute} />
 
       <div className="detail-field">
-        <span className="detail-field-label">URL</span>
+        <span className="detail-field-label">{t("url")}</span>
         {data.url ? (
           <div className="detail-copy-row">
             <a
@@ -88,27 +94,31 @@ export default function PidInfoCard(props: PidInfoCardProps) {
               target="_blank"
               rel="noopener noreferrer"
               className="detail-link"
+              lang="zxx"
             >
-              {data.url}
+              <BackendCode>{data.url}</BackendCode>
               <OpensInNewTabHint />
             </a>
-            <CopyButton value={data.url} label="URL" />
+            <CopyButton value={data.url} label={t("copyUrl")} />
           </div>
         ) : (
-          <span className="detail-field-muted">None</span>
+          <span className="detail-field-muted">{t("none")}</span>
         )}
       </div>
 
       {data.metadata ? (
         <div className="detail-field">
-          <span className="detail-field-label">Metadata</span>
-          <ExpandableMono value={data.metadata} copyLabel="metadata" />
+          <span className="detail-field-label">{t("metadata")}</span>
+          <ExpandableMono
+            value={data.metadata}
+            copyLabel={t("copyMetadata")}
+          />
         </div>
       ) : null}
 
       {data.tags.length > 0 ? (
         <div className="detail-field">
-          <span className="detail-field-label">Tags</span>
+          <span className="detail-field-label">{t("tags")}</span>
           <TagList tags={data.tags} />
         </div>
       ) : null}
@@ -116,6 +126,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
       <DetailDates
         dateCreated={data.dateCreated}
         dateUpdated={data.dateUpdated}
+        locale={locale}
       />
     </div>
   );
@@ -126,7 +137,7 @@ function TagList({ tags }: { tags: string[] }) {
     <div className="detail-tag-list">
       {tags.map((tag) => (
         <span key={tag} className="detail-tag">
-          {tag}
+          <BackendContent>{tag}</BackendContent>
         </span>
       ))}
     </div>
@@ -144,24 +155,32 @@ function PidHero({
   absolute: string;
   muted?: boolean;
 }) {
+  const t = useTranslations("pid");
+
   return (
     <div className="detail-hero">
       <p
         className={
-          muted
-            ? "detail-hero-path detail-hero-muted"
-            : "detail-hero-path"
+          muted ? "detail-hero-path detail-hero-muted" : "detail-hero-path"
         }
       >
-        <span className="detail-hero-scope">{scope}</span>
+        <span className="detail-hero-scope">
+          <BackendCode>{scope}</BackendCode>
+        </span>
         <span className="detail-hero-sep" aria-hidden="true">
           /
         </span>
-        <span className="detail-hero-pid">{pid}</span>
+        <span className="detail-hero-pid">
+          <BackendCode>{pid}</BackendCode>
+        </span>
       </p>
-      <div className="copy-button-group" role="group" aria-label="Copy">
-        <CopyButton value={pid} label="PID" caption="PID" />
-        <CopyButton value={absolute} label="full path" caption="Full" />
+      <div className="copy-button-group" role="group" aria-label={t("copyGroup")}>
+        <CopyButton value={pid} label={t("copyPid")} caption={t("copyPid")} />
+        <CopyButton
+          value={absolute}
+          label={t("copyFullLabel")}
+          caption={t("copyFull")}
+        />
       </div>
     </div>
   );
@@ -170,24 +189,28 @@ function PidHero({
 function DetailDates({
   dateCreated,
   dateUpdated,
+  locale,
 }: {
   dateCreated: string;
   dateUpdated: string;
+  locale: string;
 }) {
+  const t = useTranslations("pid");
+
   return (
     <div className="detail-meta">
       <div className="detail-meta-row">
-        <span className="detail-meta-label">Created</span>
-        <span>{formatDate(dateCreated)}</span>
+        <span className="detail-meta-label">{t("created")}</span>
+        <span>{formatDate(dateCreated, locale)}</span>
       </div>
       <div className="detail-meta-row">
-        <span className="detail-meta-label">Updated</span>
-        <span>{formatDate(dateUpdated)}</span>
+        <span className="detail-meta-label">{t("updated")}</span>
+        <span>{formatDate(dateUpdated, locale)}</span>
       </div>
     </div>
   );
 }
 
-function formatDate(value: string): string {
-  return new Date(value).toLocaleString();
+function formatDate(value: string, locale: string): string {
+  return new Date(value).toLocaleString(locale);
 }

@@ -1,0 +1,116 @@
+{
+  "meta": {
+    "title": "PID Resolver",
+    "description": "Persistente Identifikatoren auflösen und erkunden."
+  },
+  "nav": {
+    "skipToContent": "Zum Inhalt springen",
+    "productName": "PID Resolver",
+    "home": "Start",
+    "breadcrumb": "Brotkrümelnavigation",
+    "footer": "Fußzeile",
+    "language": "Sprache",
+    "localeEn": "Englisch",
+    "localeDe": "Deutsch",
+    "errorCrumb": "Fehler",
+    "notFoundCrumb": "Nicht gefunden",
+    "urlCrumb": "URL"
+  },
+  "footer": {
+    "documentation": "Dokumentation",
+    "api": "API",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "accessibility": "Barrierefreiheit"
+  },
+  "home": {
+    "aboutTitle": "Über den PID Resolver",
+    "aboutBody": "Dieser Dienst ermöglicht es, PIDs aufzulösen und Informationen zu den damit verbundenen Ressourcen abzurufen.",
+    "pidCount": "Dieser Resolver hält derzeit {count} PIDs.",
+    "docsTitle": "Dokumentation",
+    "docsHint": "Dokumentation lesen und mehr über den PID Resolver erfahren.",
+    "noMatch": "Kein passender Namespace oder PID."
+  },
+  "resolve": {
+    "showDetails": "Details",
+    "openUrl": "URL öffnen",
+    "namespaceOrPid": "Namespace oder PID",
+    "pid": "PID",
+    "pidUnder": "PID unter {prefix}",
+    "pleaseEnterPid": "Bitte eine PID eingeben."
+  },
+  "namespace": {
+    "eyebrow": "Namespace",
+    "idLabel": "Namespace-ID",
+    "mount": "Mount",
+    "pidFormat": "PID-Format",
+    "tags": "Tags",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "invalidTitle": "Ungültiger Namespace",
+    "invalidMessage": "Es wurde kein Namespace angegeben."
+  },
+  "pid": {
+    "eyebrow": "PID",
+    "url": "URL",
+    "none": "Keine",
+    "metadata": "Metadaten",
+    "tags": "Tags",
+    "created": "Erstellt",
+    "updated": "Aktualisiert",
+    "copyGroup": "Kopieren",
+    "copyPid": "PID",
+    "copyFull": "Voll",
+    "copyFullLabel": "vollständiger Pfad",
+    "copyUrl": "URL",
+    "copyMetadata": "Metadaten",
+    "copyNamespaceId": "Namespace-ID",
+    "copyMount": "Mount"
+  },
+  "errors": {
+    "serviceUnavailable": {
+      "title": "Dienst nicht erreichbar",
+      "message": "Der Dienst konnte nicht erreicht werden."
+    },
+    "serviceError": {
+      "title": "Dienstfehler",
+      "message": "Beim Kontaktieren des Dienstes ist etwas schiefgelaufen."
+    },
+    "serviceNotAvailable": {
+      "title": "Dienst nicht erreichbar",
+      "message": "Dieser Dienst ist derzeit nicht verfügbar."
+    },
+    "pidHasNoUrl": {
+      "title": "URL nicht gefunden",
+      "message": "Dieser PID hat keine zugeordnete URL."
+    },
+    "pidNotFound": {
+      "title": "Nicht gefunden",
+      "message": "Dieser PID wurde nicht gefunden."
+    },
+    "pidNoLongerAvailable": {
+      "badge": "Gelöscht",
+      "message": "Dieser PID existiert nicht mehr."
+    },
+    "namespaceMissing": {
+      "title": "Nicht gefunden",
+      "message": "Kein solcher Namespace."
+    },
+    "pageNotFound": {
+      "title": "Nicht gefunden",
+      "message": "Die angeforderte Seite oder Ressource wurde nicht gefunden."
+    },
+    "generic": {
+      "title": "Etwas ist schiefgelaufen",
+      "message": "Es ist ein unerwarteter Fehler aufgetreten."
+    },
+    "tryAgain": "Erneut versuchen"
+  },
+  "a11y": {
+    "opensInNewTab": " (öffnet in neuem Tab)",
+    "showMore": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "copied": "Kopiert",
+    "copy": "{label} kopieren"
+  }
+}

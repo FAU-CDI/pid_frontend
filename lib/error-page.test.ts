@@ -6,7 +6,7 @@ import {
 } from "./error-page";
 
 describe("errorPageForCode", () => {
-  it("maps allowlisted codes to fixed copy", () => {
+  it("maps allowlisted codes to status and catalog key", () => {
     expect(errorPageForCode("serviceUnavailable")).toEqual(
       ERROR_PAGE_BY_CODE.serviceUnavailable
     );
@@ -28,9 +28,12 @@ describe("errorPageForCode", () => {
 });
 
 describe("errorPageHref", () => {
-  it("builds an opaque code-only href", () => {
-    expect(errorPageHref("serviceUnavailable")).toBe(
-      "/error?code=serviceUnavailable"
+  it("builds an opaque code-only href under the locale", () => {
+    expect(errorPageHref("en", "serviceUnavailable")).toBe(
+      "/en/error?code=serviceUnavailable"
+    );
+    expect(errorPageHref("de", "serviceError")).toBe(
+      "/de/error?code=serviceError"
     );
   });
 });

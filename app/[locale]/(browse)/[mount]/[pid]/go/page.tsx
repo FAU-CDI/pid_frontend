@@ -1,14 +1,21 @@
+import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import PidInfoCard from "@/app/components/pid-info-card";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import {
+  errorBreadcrumb,
+  homeBreadcrumb,
+  urlBreadcrumb,
+} from "@/lib/breadcrumbs";
 import {
   browseErrorAction,
   browseNotFoundKind,
@@ -30,19 +37,25 @@ export default async function MountPidGoPage({
   }>;
 }) {
   const { mount, pid } = await params;
+  const t = await getTranslations("errors");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
+  const urlCrumb = await urlBreadcrumb();
   const mountHref = `/${encodeMountPath(mount)}`;
   const detailsHref = `${mountHref}/${encodeURIComponent(pid)}`;
+  const mountLabel = <BackendCode>{mount}</BackendCode>;
+  const pidLabel = <BackendCode>{pid}</BackendCode>;
 
   if (!mount.trim() || !pid.trim()) {
     return (
       <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+        breadcrumbs={[home, errorCrumb]}
         resolve={<GlobalResolveForm />}
         info={
           <StatusInfoCard
             status={pidNotFound.status}
-            title={pidNotFound.title}
-            message={pidNotFound.message}
+            title={t("pidNotFound.title")}
+            message={t("pidNotFound.message")}
           />
         }
       />
@@ -67,13 +80,13 @@ export default async function MountPidGoPage({
       if (browseNotFoundKind(result) === "scope-missing") {
         return (
           <ResolverPage
-            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            breadcrumbs={[home, errorCrumb]}
             resolve={<GlobalResolveForm defaultQuery={`${mount}/${pid}`} />}
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
-                title={namespaceMissing.title}
-                message={namespaceMissing.message}
+                title={t("namespaceMissing.title")}
+                message={t("namespaceMissing.message")}
               />
             }
           />
@@ -83,9 +96,9 @@ export default async function MountPidGoPage({
       return (
         <ResolverPage
           breadcrumbs={[
-            homeBreadcrumb(),
-            { href: mountHref, label: mount },
-            { label: "Error" },
+            home,
+            { href: mountHref, label: mountLabel },
+            errorCrumb,
           ]}
           resolve={
             <ResolvePanel
@@ -104,10 +117,10 @@ export default async function MountPidGoPage({
   }
 
   const crumbs = [
-    homeBreadcrumb(),
-    { href: mountHref, label: mount },
-    { href: detailsHref, label: pid },
-    { label: "URL" },
+    home,
+    { href: mountHref, label: mountLabel },
+    { href: detailsHref, label: pidLabel },
+    urlCrumb,
   ] as const;
 
   const resolvePanel = (
@@ -132,8 +145,8 @@ export default async function MountPidGoPage({
       info={
         <StatusInfoCard
           status={pidHasNoUrl.status}
-          title={pidHasNoUrl.title}
-          message={pidHasNoUrl.message}
+          title={t("pidHasNoUrl.title")}
+          message={t("pidHasNoUrl.message")}
         />
       }
     />

@@ -15,6 +15,43 @@ import {
 
 const HOST = "resolver.test";
 
+describe("parsePIDField locale prefixes", () => {
+  it("adds dual mount readings when the first segment is a supported locale", () => {
+    const results = parsePIDField("/en/test", HOST);
+    expect(results).toContainEqual({ kind: "namespace", mount: "en/test" });
+    expect(results).toContainEqual({ kind: "namespace", mount: "test" });
+    expect(results).toContainEqual({ kind: "namespace", namespace: "test" });
+  });
+
+  it("matches locale prefixes case-insensitively", () => {
+    const results = parsePIDField("/DE/demo", HOST);
+    expect(results).toContainEqual({ kind: "namespace", mount: "DE/demo" });
+    expect(results).toContainEqual({ kind: "namespace", mount: "demo" });
+  });
+
+  it("does not strip unsupported locale-looking prefixes", () => {
+    const results = parsePIDField("/fr/test", HOST);
+    expect(results).toContainEqual({ kind: "namespace", mount: "fr/test" });
+    expect(results).not.toContainEqual({ kind: "namespace", mount: "test" });
+  });
+
+  it("dual-reads same-host absolute URLs with a locale prefix", () => {
+    const results = parsePIDField(`https://${HOST}/en/test`, HOST);
+    expect(results).toContainEqual({ kind: "namespace", mount: "en/test" });
+    expect(results).toContainEqual({ kind: "namespace", mount: "test" });
+  });
+
+  it("still parses non-prefixed resolve paths", () => {
+    const results = parsePIDField("resolve/abc/123", HOST);
+    expect(results).toContainEqual({
+      kind: "resource",
+      namespace: "abc",
+      pid: "123",
+      go: false,
+    });
+  });
+});
+
 describe("parsePIDField normalization", () => {
   it("lowercases namespace and pid and strips disallowed characters", () => {
     const results = parsePIDField("resolve/AbC!/12-3_X?", HOST);

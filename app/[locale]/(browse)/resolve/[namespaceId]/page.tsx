@@ -1,12 +1,15 @@
+import { getTranslations } from "next-intl/server";
 import NamespaceInfoCard from "@/app/components/namespace-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import { BackendCode } from "@/app/components/lang";
 import ResolvePanel from "@/app/components/resolve-panel";
-import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
+import ResolverPage from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import { errorBreadcrumb, homeBreadcrumb } from "@/lib/breadcrumbs";
 import { browseErrorAction } from "@/lib/browse-result";
 import { namespaceMissing } from "@/lib/user-facing";
 
@@ -18,17 +21,21 @@ export default async function NamespacePage({
   }>;
 }) {
   const { namespaceId } = await params;
+  const t = await getTranslations("errors");
+  const tn = await getTranslations("namespace");
+  const home = await homeBreadcrumb();
+  const errorCrumb = await errorBreadcrumb();
 
   if (!namespaceId.trim()) {
     return (
       <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+        breadcrumbs={[home, errorCrumb]}
         resolve={<GlobalResolveForm />}
         info={
           <StatusInfoCard
             status={400}
-            title="Invalid Namespace"
-            message="No namespace was provided."
+            title={tn("invalidTitle")}
+            message={tn("invalidMessage")}
           />
         }
       />
@@ -41,13 +48,13 @@ export default async function NamespacePage({
     if (browseErrorAction(result) === "not-found") {
       return (
         <ResolverPage
-          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          breadcrumbs={[home, errorCrumb]}
           resolve={<GlobalResolveForm defaultQuery={namespaceId} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}
-              title={namespaceMissing.title}
-              message={namespaceMissing.message}
+              title={t("namespaceMissing.title")}
+              message={t("namespaceMissing.message")}
             />
           }
         />
@@ -58,7 +65,10 @@ export default async function NamespacePage({
 
   return (
     <ResolverPage
-      breadcrumbs={[homeBreadcrumb(), { label: namespaceId }]}
+      breadcrumbs={[
+        home,
+        { label: <BackendCode>{namespaceId}</BackendCode> },
+      ]}
       resolve={
         <ResolvePanel
           key={namespaceId}

@@ -1,3 +1,4 @@
+import { getLocale, getTranslations } from "next-intl/server";
 import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
 
 type AboutInfoCardProps = {
@@ -5,19 +6,21 @@ type AboutInfoCardProps = {
   pidCount?: number;
 };
 
-export default function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
+export default async function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
+  const t = await getTranslations("home");
+  const locale = await getLocale();
+  const count =
+    typeof pidCount === "number"
+      ? pidCount.toLocaleString(locale)
+      : undefined;
+
   return (
     <div className="space-y-6">
       <div className="card">
-        <h2 className="card-title">About PID Resolver</h2>
-        <p className="card-body">
-          This service allows users to resolve PIDs and retrieve information
-          about the resources they identify.
-        </p>
-        {typeof pidCount === "number" ? (
-          <p className="card-body">
-            This resolver currently holds {pidCount.toLocaleString()} PIDs.
-          </p>
+        <h2 className="card-title">{t("aboutTitle")}</h2>
+        <p className="card-body">{t("aboutBody")}</p>
+        {count !== undefined ? (
+          <p className="card-body">{t("pidCount", { count })}</p>
         ) : null}
       </div>
 
@@ -30,12 +33,10 @@ export default function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="card-title">
-              Documentation
+              {t("docsTitle")}
               <OpensInNewTabHint />
             </h2>
-            <p className="card-hint">
-              Read the documentation and learn more about the PID Resolver.
-            </p>
+            <p className="card-hint">{t("docsHint")}</p>
           </div>
           <span className="text-xl" aria-hidden="true">
             →

@@ -1,7 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState } from "react";
 import CopyButton from "@/app/components/copy-button";
+import { BackendContent } from "@/app/components/lang";
 
 /** Collapsed max-height in px; keep in sync with `.metadata-block` (`max-h-48` = 12rem). */
 const COLLAPSED_MAX_PX = 192;
@@ -16,6 +18,7 @@ export default function ExpandableMono({
   value,
   copyLabel = "metadata",
 }: ExpandableMonoProps) {
+  const t = useTranslations("a11y");
   const preRef = useRef<HTMLPreElement>(null);
   const preId = useId();
   const [expanded, setExpanded] = useState(false);
@@ -47,10 +50,12 @@ export default function ExpandableMono({
           id={preId}
           ref={preRef}
           className={
-            expanded ? "metadata-block metadata-block-expanded" : "metadata-block"
+            expanded
+              ? "metadata-block metadata-block-expanded"
+              : "metadata-block"
           }
         >
-          {value}
+          <BackendContent>{value}</BackendContent>
         </pre>
         <CopyButton value={value} label={copyLabel} />
       </div>
@@ -62,7 +67,7 @@ export default function ExpandableMono({
           aria-expanded={expanded}
           aria-controls={preId}
         >
-          {expanded ? "Show less" : "Show more"}
+          {expanded ? t("showLess") : t("showMore")}
         </button>
       )}
     </div>

@@ -1,9 +1,12 @@
-import Link from "next/link";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
 export type Breadcrumb = {
   /** When omitted, the crumb is the current (non-linked) page. */
   href?: string;
-  label: string;
+  label: React.ReactNode;
 };
 
 export type ResolverPageProps = {
@@ -24,14 +27,19 @@ export default function ResolverPage({
   resolve,
   info,
 }: ResolverPageProps) {
+  const t = useTranslations("nav");
+
   return (
     <>
-      <nav className="app-breadcrumbs" aria-label="Breadcrumb">
+      <nav className="app-breadcrumbs" aria-label={t("breadcrumb")}>
         <ol className="app-breadcrumbs-list">
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1;
             return (
-              <li key={`${crumb.label}-${index}`} className="flex items-center gap-x-2">
+              <li
+                key={index}
+                className="flex items-center gap-x-2"
+              >
                 {index > 0 && (
                   <span className="app-breadcrumb-sep" aria-hidden="true">
                     /
@@ -67,8 +75,4 @@ export default function ResolverPage({
       </div>
     </>
   );
-}
-
-export function homeBreadcrumb(): Breadcrumb {
-  return { href: "/", label: "Home" };
 }

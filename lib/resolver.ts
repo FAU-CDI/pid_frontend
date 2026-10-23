@@ -1,3 +1,4 @@
+import { isSupportedLocale } from "./locales";
 import {
   BackendClient,
   isBackendError,
@@ -69,6 +70,11 @@ export function parsePIDField(
   // $mount
   // $mount/$pid
   // /$mount/$pid/go
+  //
+  // When the first segment is a supported UI locale (see lib/locales), readings
+  // are also produced for the path with that prefix stripped (e.g. /en/test →
+  // mount "en/test" and mount "test"). Unsupported prefixes are not stripped.
+  // Both language-prefixed and non-prefixed Resolve inputs must keep working.
   //
   // Matches on exact components ("go" and "resolve") are case-insensitive.
   // $namespace and $pid must consist of exactly one component; both are
@@ -171,6 +177,22 @@ function parsePathComponents(components: string[]): ParseResult[] {
     return [];
   }
 
+  const candidates = [...parsePathComponentsCore(components)];
+
+  // Dual readings: also parse after stripping a supported locale prefix.
+  if (isSupportedLocale(components[0]) && components.length > 1) {
+    candidates.push(...parsePathComponentsCore(components.slice(1)));
+  }
+
+  return finalizeParseResults(candidates);
+}
+
+/** Syntactic readings for one path (no locale-prefix dualization). */
+function parsePathComponentsCore(components: string[]): ParseResult[] {
+  if (components.length === 0) {
+    return [];
+  }
+
   const candidates: ParseResult[] = [];
 
   // First handle "/resolve/" inputs.
@@ -266,7 +288,7 @@ function parsePathComponents(components: string[]): ParseResult[] {
   // $mount
   candidates.push({ kind: "namespace", mount: components.join("/") });
 
-  return finalizeParseResults(candidates);
+  return candidates;
 }
 
 /** Lowercase letters, digits, hyphen, underscore — matches backend NamespaceId / PID. */

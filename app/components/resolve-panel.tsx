@@ -1,7 +1,8 @@
 "use client";
 
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { encodeMountPath, hrefForResolved } from "@/lib/resolve-href";
 import {
   scopedResourceTarget,
@@ -30,6 +31,8 @@ const ERROR_ID = "scoped-resolve-error";
 
 export default function ResolvePanel(props: ResolvePanelProps) {
   const router = useRouter();
+  const locale = useLocale();
+  const t = useTranslations("resolve");
   const [error, setError] = useState("");
   const [pid, setPid] = useState(props.initialPid ?? "");
 
@@ -65,13 +68,19 @@ export default function ResolvePanel(props: ResolvePanelProps) {
       forceGo
     );
     if (!target) {
-      setError("Please enter a PID.");
+      setError(t("pleaseEnterPid"));
       return;
     }
 
     const publicBase =
       typeof window !== "undefined" ? window.location.origin : "";
-    router.push(hrefForResolved(asResolvedForHref(target), publicBase));
+    // hrefForResolved includes locale; next-intl router expects pathname without it
+    // when using locale-aware push — pass full path via window or strip.
+    // Using full locale-prefixed path with next/navigation-style: next-intl's
+    // router.push accepts a pathname relative to the locale.
+    const href = hrefForResolved(asResolvedForHref(target), publicBase, locale);
+    const withoutLocale = href.replace(new RegExp(`^/${locale}`), "") || "/";
+    router.push(withoutLocale);
   }
 
   return (
@@ -87,10 +96,10 @@ export default function ResolvePanel(props: ResolvePanelProps) {
           {prefix && <span className="field-prefix">{prefix}</span>}
           <input
             type="text"
-            placeholder="PID"
+            placeholder={t("pid")}
             value={pid}
             autoComplete="off"
-            aria-label={prefix ? `PID under ${prefix}` : "PID"}
+            aria-label={prefix ? t("pidUnder", { prefix }) : t("pid")}
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? ERROR_ID : undefined}
             onChange={(e) => {
@@ -102,14 +111,14 @@ export default function ResolvePanel(props: ResolvePanelProps) {
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:w-40">
           <button type="submit" className="btn-primary w-full">
-            Show Details
+            {t("showDetails")}
           </button>
           <button
             type="button"
             onClick={() => navigate(true)}
             className="btn-secondary w-full"
           >
-            Open URL
+            {t("openUrl")}
           </button>
         </div>
       </form>
