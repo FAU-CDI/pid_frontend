@@ -71,8 +71,9 @@ export function parsePIDField(
   // /$mount/$pid/go
   //
   // Matches on exact components ("go" and "resolve") are case-insensitive.
-  // $namespace and $pid must consist of exactly one component.
-  // $mount may consist of more than a single component.
+  // $namespace and $pid must consist of exactly one component; both are
+  // normalized to lowercase [a-z0-9_-] (other characters stripped).
+  // $mount may consist of more than a single component and is not rewritten.
   //
   // The function returns all possible matches, it is left to the caller to check against
   // the API to see if these actually exist.
@@ -161,7 +162,7 @@ function parseAbsoluteMountURL(url: URL): ParseResult[] {
     });
   }
 
-  return candidates;
+  return finalizeParseResults(candidates);
 }
 
 /** Relative / same-host pathname component readings. */
@@ -265,7 +266,57 @@ function parsePathComponents(components: string[]): ParseResult[] {
   // $mount
   candidates.push({ kind: "namespace", mount: components.join("/") });
 
-  return candidates;
+  return finalizeParseResults(candidates);
+}
+
+/** Lowercase letters, digits, hyphen, underscore — matches backend NamespaceId / PID. */
+const ID_CHAR = /[a-z0-9_-]/;
+
+/** Strip to the backend id charset (lowercase [a-z0-9_-]). Mounts are left unchanged. */
+function normalizeId(id: string): string {
+  return id
+    .toLowerCase()
+    .split("")
+    .filter((c) => ID_CHAR.test(c))
+    .join("");
+}
+
+function normalizeParseResult(result: ParseResult): ParseResult {
+  if (result.kind === "namespace") {
+    if ("namespace" in result) {
+      return { kind: "namespace", namespace: normalizeId(result.namespace) };
+    }
+    return result;
+  }
+  if ("namespace" in result) {
+    return {
+      kind: "resource",
+      namespace: normalizeId(result.namespace),
+      pid: normalizeId(result.pid),
+      go: result.go,
+    };
+  }
+  return {
+    kind: "resource",
+    mount: result.mount,
+    pid: normalizeId(result.pid),
+    go: result.go,
+  };
+}
+
+/** Drop candidates whose namespace or pid became empty after normalization. */
+function isUsableParseResult(result: ParseResult): boolean {
+  if ("namespace" in result && result.namespace === "") {
+    return false;
+  }
+  if ("pid" in result && result.pid === "") {
+    return false;
+  }
+  return true;
+}
+
+function finalizeParseResults(candidates: ParseResult[]): ParseResult[] {
+  return candidates.map(normalizeParseResult).filter(isUsableParseResult);
 }
 
 function tryParseURL(input: string): URL | null {
@@ -299,21 +350,21 @@ export type ResolvedResult =
   | { kind: "namespace"; namespace: string; mount?: string; exists: boolean }
   | { kind: "namespace"; mount: string; exists: boolean }
   | {
-      kind: "resource";
-      mount: string;
-      namespace?: string;
-      pid: string;
-      go: boolean;
-      exists: boolean;
-    }
+    kind: "resource";
+    mount: string;
+    namespace?: string;
+    pid: string;
+    go: boolean;
+    exists: boolean;
+  }
   | {
-      kind: "resource";
-      namespace: string;
-      mount?: string;
-      pid: string;
-      go: boolean;
-      exists: boolean;
-    };
+    kind: "resource";
+    namespace: string;
+    mount?: string;
+    pid: string;
+    go: boolean;
+    exists: boolean;
+  };
 
 function isSoftMiss(
   error: Pick<BackendError, "status" | "code">,
@@ -461,7 +512,8 @@ function resourceMatchesScope(
 ): boolean {
   if (scope.kind === "namespace") {
     return (
-      "namespace" in candidate && candidate.namespace === scope.namespaceId
+      "namespace" in candidate &&
+      candidate.namespace === normalizeId(scope.namespaceId)
     );
   }
   if (!("mount" in candidate)) {

@@ -7,12 +7,56 @@ import {
 } from "./backend/mock-data";
 import {
   composeScopedQuery,
+  parsePIDField,
   parseScopedPIDField,
   resolve,
   scopedResourceTarget,
 } from "./resolver";
 
 const HOST = "resolver.test";
+
+describe("parsePIDField normalization", () => {
+  it("lowercases namespace and pid and strips disallowed characters", () => {
+    const results = parsePIDField("resolve/AbC!/12-3_X?", HOST);
+    expect(results).toContainEqual({
+      kind: "resource",
+      namespace: "abc",
+      pid: "12-3_x",
+      go: false,
+    });
+  });
+
+  it("does not rewrite mount paths", () => {
+    const results = parsePIDField("Some/Mount/pid-1", HOST);
+    expect(results).toContainEqual({
+      kind: "resource",
+      mount: "Some/Mount",
+      pid: "pid-1",
+      go: false,
+    });
+  });
+
+  it("drops candidates whose id becomes empty", () => {
+    const results = parsePIDField("!!!", HOST);
+    expect(results.every((r) => !("namespace" in r && r.namespace === ""))).toBe(
+      true
+    );
+    expect(results).toContainEqual({ kind: "namespace", mount: "!!!" });
+  });
+
+  it("normalizes pid on foreign absolute mount URLs", () => {
+    const results = parsePIDField(
+      "https://other.example/base/Pid-1/go",
+      HOST
+    );
+    expect(results).toContainEqual({
+      kind: "resource",
+      mount: "https://other.example/base/",
+      pid: "pid-1",
+      go: true,
+    });
+  });
+});
 
 describe("composeScopedQuery", () => {
   it("joins namespace scope with trimmed field (strip leading slashes)", () => {
@@ -108,6 +152,16 @@ describe("parseScopedPIDField / scopedResourceTarget", () => {
 
   it("returns null for empty field", () => {
     expect(scopedResourceTarget(nsScope, "   ", HOST, false)).toBeNull();
+  });
+
+  it("normalizes uppercase pid under namespace scope", () => {
+    const targets = parseScopedPIDField(nsScope, "AbC!", HOST);
+    expect(targets[0]).toEqual({
+      kind: "resource",
+      namespace: MOCK_NAMESPACE_ID,
+      pid: "abc",
+      go: false,
+    });
   });
 });
 
