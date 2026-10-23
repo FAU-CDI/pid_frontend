@@ -1,4 +1,5 @@
 import PidInfoCard from "@/app/components/pid-info-card";
+import GlobalResolveForm from "@/app/components/global-resolve-form";
 import ResolvePanel from "@/app/components/resolve-panel";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
@@ -63,7 +64,7 @@ export default async function NamespacePidPage({
       return (
         <ResolverPage
           breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<ResolvePanel mode="global" />}
+          resolve={<GlobalResolveForm />}
           info={
             <StatusInfoCard
               status={500}
@@ -96,7 +97,7 @@ export default async function NamespacePidPage({
     return (
       <ResolverPage
         breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<ResolvePanel mode="global" />}
+        resolve={<GlobalResolveForm />}
         info={
           <StatusInfoCard
             status={result.status === 502 ? 502 : result.status}

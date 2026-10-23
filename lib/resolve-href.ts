@@ -27,7 +27,7 @@ export function encodeMountPath(mount: string): string {
 }
 
 /**
- * Build an in-app href for a `/api/resolve` result.
+ * Build an in-app href for a `resolveFirst` result (e.g. homepage `/?q=`).
  * Missing PIDs (`exists: false`) still link to the details page (never `/go`).
  */
 export function hrefForResolved(

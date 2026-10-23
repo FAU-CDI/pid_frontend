@@ -1,4 +1,4 @@
-import ResolvePanel from "@/app/components/resolve-panel";
+import GlobalResolveForm from "@/app/components/global-resolve-form";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
 import { errorPageForCode } from "@/lib/error-page";
@@ -16,7 +16,7 @@ export default async function ErrorRoute({
   return (
     <ResolverPage
       breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-      resolve={<ResolvePanel mode="global" />}
+      resolve={<GlobalResolveForm />}
       info={
         <StatusInfoCard
           status={copy.status}

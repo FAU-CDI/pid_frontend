@@ -15,15 +15,16 @@ This backend uses only public (and read-only) APIs, meaning it can be run by any
 
 ## URL shapes
 
-| Pattern                 | Path                                   | Notes                              |
-|-------------------------|----------------------------------------|------------------------------------|
-| Homepage                | `/`                                    | Show Details field                 |
-| Namespace query         | `/resolve/{namespaceId}`               |                                    |
-| Namespace PID details   | `/resolve/{namespaceId}/{pid}`         |                                    |
-| Namespace Open URL      | `/resolve/{namespaceId}/{pid}/go`      | Redirect to target, or result UI   |
-| Mount query             | `/{baseURI}/`                          |                                    |
-| Mount PID details       | `/{baseURI}/{pid}`                     |                                    |
-| Mount Open URL          | `/{baseURI}/{pid}/go`                  | Redirect to target, or result UI   |
+| Pattern                 | Path                                   | Notes                                                      |
+|-------------------------|----------------------------------------|------------------------------------------------------------|
+| Homepage                | `/`                                    | Show Details field                                         |
+| Homepage lookup         | `/?q={query}`                          | Resolves then redirects to a shape below; may soft-404     |
+| Namespace query         | `/resolve/{namespaceId}`               |                                                            |
+| Namespace PID details   | `/resolve/{namespaceId}/{pid}`         |                                                            |
+| Namespace Open URL      | `/resolve/{namespaceId}/{pid}/go`      | Redirect to target, or result UI                           |
+| Mount query             | `/{baseURI}/`                          |                                                            |
+| Mount PID details       | `/{baseURI}/{pid}`                     |                                                            |
+| Mount Open URL          | `/{baseURI}/{pid}/go`                  | Redirect to target, or result UI                           |
 
 ## Mock mode
 

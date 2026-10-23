@@ -41,6 +41,10 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - Stable public URL shapes: the routes under **URL shapes** in `README.md` are a **public API**.
   Do not remove or change them.
   Do not add new public routes unless the user explicitly requests that breaking or additive change.
+  Homepage lookup `/?q=` is part of that surface.
+- Do not add Next.js Route Handler “API” routes for app features (no `/api/…`, no parallel “internal API” trees).
+  We do not want to increase the public API surface: every HTTP route is effectively part of what clients can call and what we must keep stable.
+  Homepage lookup and similar flows use public page URLs (e.g. `/?q=`) or server rendering/redirects—not fetchable JSON endpoints for the UI.
 
 ## Git workflow
 
