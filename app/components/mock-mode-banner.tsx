@@ -68,7 +68,7 @@ function FixtureLink({
   return (
     <Link
       href={href}
-      className="inline-flex items-baseline gap-2 text-red-50 no-underline hover:underline"
+      className="inline-flex items-baseline gap-2 text-red-50 no-underline hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-200"
     >
       <span>{label}</span>
       <span className="font-mono text-xs text-red-200/80">{id}</span>
@@ -79,7 +79,7 @@ function FixtureLink({
 export default function MockModeBanner() {
   return (
     <details className="group relative bg-red-900 text-red-50 open:shadow-lg">
-      <summary className="cursor-pointer list-none px-8 py-2 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+      <summary className="mock-banner-summary">
         <span className="inline-flex items-center gap-2">
           <span
             aria-hidden

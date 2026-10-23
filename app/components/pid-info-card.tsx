@@ -1,5 +1,6 @@
 import CopyButton from "@/app/components/copy-button";
 import ExpandableMono from "@/app/components/expandable-mono";
+import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
 import { pidNoLongerAvailable, pidNotFound } from "@/lib/user-facing";
 
 export type PidInfoData = {
@@ -36,7 +37,9 @@ export default function PidInfoCard(props: PidInfoCardProps) {
           <p className="detail-eyebrow">{title}</p>
           <span className="status-error-badge">{title}</span>
         </div>
-        <div className="status-error">{message}</div>
+        <div className="status-error" role="alert">
+          {message}
+        </div>
       </div>
     );
   }
@@ -56,7 +59,9 @@ export default function PidInfoCard(props: PidInfoCardProps) {
           absolute={data.absolute}
           muted
         />
-        <div className="status-gone">{pidNoLongerAvailable.message}</div>
+        <div className="status-gone" role="status">
+          {pidNoLongerAvailable.message}
+        </div>
         <DetailDates
           dateCreated={data.dateCreated}
           dateUpdated={data.dateUpdated}
@@ -85,6 +90,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
               className="detail-link"
             >
               {data.url}
+              <OpensInNewTabHint />
             </a>
             <CopyButton value={data.url} label="URL" />
           </div>

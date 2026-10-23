@@ -1,3 +1,5 @@
+import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
+
 type AboutInfoCardProps = {
   /** Total issued PIDs when the count API succeeds. */
   pidCount?: number;
@@ -27,7 +29,10 @@ export default function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
       >
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="card-title">Documentation</h2>
+            <h2 className="card-title">
+              Documentation
+              <OpensInNewTabHint />
+            </h2>
             <p className="card-hint">
               Read the documentation and learn more about the PID Resolver.
             </p>

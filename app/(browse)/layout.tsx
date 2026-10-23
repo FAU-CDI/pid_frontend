@@ -12,7 +12,7 @@ export default function BrowseLayout({
           PID Resolver
         </Link>
       </header>
-      {children}
+      <main id="main-content">{children}</main>
     </div>
   );
 }

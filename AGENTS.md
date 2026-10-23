@@ -73,6 +73,20 @@ Do not introduce synonyms for the same action (for example, do not mix “Redire
 Mock-mode UI is exempt.
 Developer/operator README sections (setup, env vars, mock mode, CI) may keep technical terms.
 
+## Accessibility
+
+Target pragmatic **WCAG 2.2 AA** for keyboard and names/roles/states on all user-facing UI.
+Mock-mode banner needs keyboard and focus treatment only; product terminology rules still apply elsewhere.
+Every page must offer a skip link to `#main-content`, landmarks `header` / `main` / `footer` (header not inside `main`), and exactly one `h1` (current breadcrumb pattern via `ResolverPage`).
+All interactive controls must be reachable and operable by keyboard (Tab / Shift+Tab / Enter / Space), show a visible `:focus-visible` ring, and must not create keyboard traps.
+Prefer native semantics (`button`, `a`, `form`, `label` / `aria-label`, `nav`, etc.); add ARIA only when native HTML is insufficient—never redundant roles on native elements.
+Form fields need an accessible name; associate errors with `aria-invalid` + `aria-describedby` and announce them (`role="alert"` / live region).
+Do not put untrusted request input into error titles or messages (see Architecture invariants).
+Dynamic feedback (copy success, status cards) must be announced to assistive tech where appropriate (`aria-live` / `role="status"` / `role="alert"`).
+Links that open a new tab must expose that fact to screen readers (e.g. `OpensInNewTabHint`).
+When adding or changing UI, update focus styles and a11y attributes in the same change.
+Do not invent new a11y test scripts or dependencies unless explicitly requested.
+
 ## README prose
 
 The README is for humans and must stay readable.

@@ -15,7 +15,9 @@ export default function StatusInfoCard({
         <p className="detail-eyebrow">{title}</p>
         <span className="status-error-badge">{title}</span>
       </div>
-      <div className="status-error">{message}</div>
+      <div className="status-error" role="alert">
+        {message}
+      </div>
     </div>
   );
 }

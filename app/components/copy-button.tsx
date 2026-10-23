@@ -58,6 +58,9 @@ export default function CopyButton({
           {copied ? "Copied" : caption}
         </span>
       ) : null}
+      <span className="sr-only" role="status" aria-live="polite">
+        {copied ? "Copied" : ""}
+      </span>
     </button>
   );
 }

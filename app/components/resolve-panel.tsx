@@ -26,6 +26,8 @@ type ScopedProps =
 
 export type ResolvePanelProps = ScopedProps;
 
+const ERROR_ID = "scoped-resolve-error";
+
 export default function ResolvePanel(props: ResolvePanelProps) {
   const router = useRouter();
   const [error, setError] = useState("");
@@ -74,37 +76,32 @@ export default function ResolvePanel(props: ResolvePanelProps) {
 
   return (
     <div className="card">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+      <form
+        className="flex flex-col gap-3 sm:flex-row sm:items-start"
+        onSubmit={(e) => {
+          e.preventDefault();
+          navigate(false);
+        }}
+      >
         <div className="field-with-prefix flex-1">
-          {prefix && (
-            <span className="field-prefix" aria-hidden="true">
-              {prefix}
-            </span>
-          )}
+          {prefix && <span className="field-prefix">{prefix}</span>}
           <input
             type="text"
             placeholder="PID"
             value={pid}
             autoComplete="off"
-            aria-label="PID"
+            aria-label={prefix ? `PID under ${prefix}` : "PID"}
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? ERROR_ID : undefined}
             onChange={(e) => {
               setPid(e.target.value);
               setError("");
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                navigate(false);
-              }
             }}
             className="field-input-bare"
           />
         </div>
         <div className="flex shrink-0 flex-col gap-3 sm:w-40">
-          <button
-            type="button"
-            onClick={() => navigate(false)}
-            className="btn-primary w-full"
-          >
+          <button type="submit" className="btn-primary w-full">
             Show Details
           </button>
           <button
@@ -115,9 +112,13 @@ export default function ResolvePanel(props: ResolvePanelProps) {
             Open URL
           </button>
         </div>
-      </div>
+      </form>
 
-      {error && <div className="alert-error">{error}</div>}
+      {error && (
+        <div id={ERROR_ID} className="alert-error" role="alert">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

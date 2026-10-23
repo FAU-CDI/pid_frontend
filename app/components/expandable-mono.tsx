@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import CopyButton from "@/app/components/copy-button";
 
 /** Collapsed max-height in px; keep in sync with `.metadata-block` (`max-h-48` = 12rem). */
@@ -17,6 +17,7 @@ export default function ExpandableMono({
   copyLabel = "metadata",
 }: ExpandableMonoProps) {
   const preRef = useRef<HTMLPreElement>(null);
+  const preId = useId();
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
 
@@ -43,6 +44,7 @@ export default function ExpandableMono({
     <div className="space-y-2">
       <div className="detail-copy-row">
         <pre
+          id={preId}
           ref={preRef}
           className={
             expanded ? "metadata-block metadata-block-expanded" : "metadata-block"
@@ -58,6 +60,7 @@ export default function ExpandableMono({
           className="metadata-toggle"
           onClick={() => setExpanded((current) => !current)}
           aria-expanded={expanded}
+          aria-controls={preId}
         >
           {expanded ? "Show less" : "Show more"}
         </button>

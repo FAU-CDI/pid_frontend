@@ -38,9 +38,16 @@ export default function ResolverPage({
                   </span>
                 )}
                 {isLast || !crumb.href ? (
-                  <span className="app-breadcrumb-current" aria-current={isLast ? "page" : undefined}>
-                    {crumb.label}
-                  </span>
+                  isLast ? (
+                    <h1
+                      className="app-breadcrumb-current"
+                      aria-current="page"
+                    >
+                      {crumb.label}
+                    </h1>
+                  ) : (
+                    <span className="app-breadcrumb-current">{crumb.label}</span>
+                  )
                 ) : (
                   <Link href={crumb.href} className="app-breadcrumb-link">
                     {crumb.label}

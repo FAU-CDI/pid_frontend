@@ -6,6 +6,8 @@ type GlobalResolveFormProps = {
   error?: string;
 };
 
+const ERROR_ID = "global-resolve-error";
+
 /**
  * Homepage-style Show Details control: GET form to `/?q=…` (server resolves and redirects).
  */
@@ -27,6 +29,8 @@ export default function GlobalResolveForm({
           placeholder={resolveExamplePlaceholder()}
           autoComplete="off"
           aria-label="Namespace or PID"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? ERROR_ID : undefined}
           className="field-input"
         />
         <div className="flex shrink-0 flex-col gap-3 sm:w-40">
@@ -36,7 +40,11 @@ export default function GlobalResolveForm({
         </div>
       </form>
 
-      {error && <div className="alert-error">{error}</div>}
+      {error && (
+        <div id={ERROR_ID} className="alert-error" role="alert">
+          {error}
+        </div>
+      )}
     </div>
   );
 }
