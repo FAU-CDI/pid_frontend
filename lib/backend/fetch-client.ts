@@ -2,6 +2,7 @@ import createClient, { type Client } from "openapi-fetch";
 import {
   BackendClient,
   isBackendError,
+  type ApiErrorCode,
   type BackendError,
   type BackendResult,
   type Mount,
@@ -47,18 +48,24 @@ export class FetchClient extends BackendClient {
     }
 
     try {
-      console.log("Requesting Go mount:", `/resolver/mounts/${baseUri}`);
+      this.#log("Requesting Go mount:", `/resolver/mounts/${baseUri}`);
 
-      const { data, response } = await api.GET("/resolver/mounts/{baseUri}", {
-        params: { path: { baseUri } },
-      });
+      const { data, error, response } = await api.GET(
+        "/resolver/mounts/{baseUri}",
+        {
+          params: { path: { baseUri } },
+        }
+      );
 
-      console.log("Go backend response:", response.status, response.statusText);
+      this.#log("Go backend response:", response.status, response.statusText);
 
       if (!response.ok) {
         return await this.#httpError(
           response,
-          response.status === 404 ? "Mount not found" : "Go backend returned an error"
+          response.status === 404
+            ? "Mount not found"
+            : "Go backend returned an error",
+          error
         );
       }
 
@@ -81,26 +88,27 @@ export class FetchClient extends BackendClient {
     }
 
     try {
-      console.log(
+      this.#log(
         "Requesting Go namespace:",
         `/resolver/namespaces/${namespaceId}`
       );
 
-      const { data, response } = await api.GET(
+      const { data, error, response } = await api.GET(
         "/resolver/namespaces/{namespace}",
         {
           params: { path: { namespace: namespaceId } },
         }
       );
 
-      console.log("Go backend response:", response.status, response.statusText);
+      this.#log("Go backend response:", response.status, response.statusText);
 
       if (!response.ok) {
         return await this.#httpError(
           response,
           response.status === 404
             ? "Namespace not found"
-            : "Go backend returned an error"
+            : "Go backend returned an error",
+          error
         );
       }
 
@@ -117,6 +125,10 @@ export class FetchClient extends BackendClient {
   /**
    * OpenAPI success status is 302 with a JSON body and Location header.
    * Redirect is manual so the body (and Location) are read without a follow-up request.
+   *
+   * openapi-fetch only puts bodies in `data` when `response.ok` (2xx). Documented
+   * 302 success bodies land in `error` instead — read either channel via
+   * {@link resourceFromOpenApiBody}.
    */
   async getResourceByMount(
     baseUri: string,
@@ -128,12 +140,12 @@ export class FetchClient extends BackendClient {
     }
 
     try {
-      console.log(
+      this.#log(
         "Requesting Go mount backend:",
         `/resolver/mounts/${baseUri}/${pid}`
       );
 
-      const { data, response } = await api.GET(
+      const { data, error, response } = await api.GET(
         "/resolver/mounts/{baseUri}/{pid}",
         {
           params: { path: { baseUri, pid } },
@@ -141,35 +153,24 @@ export class FetchClient extends BackendClient {
         }
       );
 
-      console.log("Go backend response:", response.status, response.statusText);
-
-      if (response.status === 404) {
-        return await this.#httpError(response, "Mount or PID not found");
-      }
+      this.#log("Go backend response:", response.status, response.statusText);
 
       if (response.status === 302 || response.ok) {
-        const namespace = namespaceFromLocation(response.headers.get("Location"));
-        let resource: Resource | null = null;
-
-        if (data && typeof data === "object" && "pid" in data) {
-          resource = data as Resource;
-        } else {
-          try {
-            const body = (await response.json()) as Resource;
-            if (body && typeof body === "object" && "pid" in body) {
-              resource = body;
-            }
-          } catch {
-            // fall through
-          }
-        }
-
+        const resource = resourceFromOpenApiBody(data, error);
         if (resource) {
+          const namespace = namespaceFromLocation(response.headers.get("Location"));
           return { ...resource, namespace: namespace ?? "" };
         }
+        return { error: "Go backend returned an error", status: 502 };
       }
 
-      return { error: "Go backend returned an error", status: 502 };
+      return await this.#httpError(
+        response,
+        response.status === 404
+          ? "Mount or PID not found"
+          : "Go backend returned an error",
+        error
+      );
     } catch (error) {
       return this.#unavailable("Mount backend request failed:", error);
     }
@@ -177,6 +178,9 @@ export class FetchClient extends BackendClient {
 
   /**
    * Success is 200 (full resource) or 410 (redacted deleted resource).
+   *
+   * 410 is not `response.ok`, so openapi-fetch places the redacted body in
+   * `error` — see {@link resourceFromOpenApiBody}.
    */
   async getResourceByNamespace(
     namespaceId: string,
@@ -188,12 +192,12 @@ export class FetchClient extends BackendClient {
     }
 
     try {
-      console.log(
+      this.#log(
         "Requesting Go backend:",
         `/resolver/namespaces/${namespaceId}/resources/${pid}`
       );
 
-      const { data, response } = await api.GET(
+      const { data, error, response } = await api.GET(
         "/resolver/namespaces/{namespace}/resources/{pid}",
         {
           params: {
@@ -202,19 +206,12 @@ export class FetchClient extends BackendClient {
         }
       );
 
-      console.log("Go backend response:", response.status, response.statusText);
+      this.#log("Go backend response:", response.status, response.statusText);
 
       if (response.status === 410) {
-        if (data && typeof data === "object" && "pid" in data) {
-          return data as Resource;
-        }
-        try {
-          const body = (await response.json()) as Resource;
-          if (body && typeof body === "object" && "pid" in body) {
-            return body;
-          }
-        } catch {
-          // fall through
+        const resource = resourceFromOpenApiBody(data, error);
+        if (resource) {
+          return resource;
         }
         return { error: "Go backend returned an error", status: 502 };
       }
@@ -224,7 +221,8 @@ export class FetchClient extends BackendClient {
           response,
           response.status === 404
             ? "PID not found"
-            : "Go backend returned an error"
+            : "Go backend returned an error",
+          error
         );
       }
 
@@ -238,16 +236,26 @@ export class FetchClient extends BackendClient {
     }
   }
 
+  /** Info traces; mute centrally here later. */
+  #log(...args: unknown[]): void {
+    console.log(...args);
+  }
+
+  /** Error traces; mute centrally here later. */
+  #error(...args: unknown[]): void {
+    console.error(...args);
+  }
+
   #requireApi(): Client<paths> | BackendError {
     if (!this.#api) {
-      console.error("Missing API base URL");
+      this.#error("Missing API base URL");
       return { error: "Server configuration error", status: 500 };
     }
     return this.#api;
   }
 
   #unavailable(logLabel: string, error: unknown): BackendError {
-    console.error(logLabel, error);
+    this.#error(logLabel, error);
     return {
       error: "Backend unavailable",
       status: 502,
@@ -255,11 +263,18 @@ export class FetchClient extends BackendClient {
     };
   }
 
+  /**
+   * openapi-fetch puts non-2xx JSON in `error` and consumes the body.
+   * Prefer `parsedBody` for the Go `error` code; fall back to re-reading
+   * the Response only when the body was not already parsed.
+   */
   async #httpError(
     response: Response,
-    fallbackMessage: string
+    fallbackMessage: string,
+    parsedBody?: unknown
   ): Promise<BackendError> {
-    const code = await readErrorCode(response);
+    const code =
+      errorCodeFromOpenApiBody(parsedBody) ?? (await readErrorCode(response));
     return {
       error: fallbackMessage,
       status:
@@ -273,12 +288,46 @@ export class FetchClient extends BackendClient {
   }
 }
 
+/**
+ * openapi-fetch puts parsed JSON in `data` only for `response.ok` (2xx).
+ * Documented non-2xx success bodies (302, 410) are parsed into `error` instead.
+ * Prefer `data`, then `error`, when either looks like a resource.
+ */
+function resourceFromOpenApiBody(
+  data: unknown,
+  error: unknown
+): Resource | null {
+  for (const candidate of [data, error]) {
+    if (
+      candidate &&
+      typeof candidate === "object" &&
+      "pid" in candidate &&
+      typeof (candidate as { pid: unknown }).pid === "string"
+    ) {
+      return candidate as Resource;
+    }
+  }
+  return null;
+}
+
+/** Extract Go API `{"error":"…"}` code from an already-parsed openapi-fetch body. */
+function errorCodeFromOpenApiBody(body: unknown): ApiErrorCode | undefined {
+  if (
+    body &&
+    typeof body === "object" &&
+    "error" in body &&
+    typeof (body as { error: unknown }).error === "string"
+  ) {
+    // Trust the Go API + OpenAPI document; literals are ApiErrorCode in schema.d.ts.
+    return (body as { error: string }).error as ApiErrorCode;
+  }
+  return undefined;
+}
+
 async function readErrorCode(response: Response): Promise<string | undefined> {
   try {
     const body = (await response.json()) as { error?: unknown };
-    if (typeof body?.error === "string") {
-      return body.error;
-    }
+    return errorCodeFromOpenApiBody(body);
   } catch {
     // ignore
   }

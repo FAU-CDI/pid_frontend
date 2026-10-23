@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { hrefForResolved } from "@/lib/resolve-href";
+import {
+  scopedResourceTarget,
+  type ResolveScope,
+  type ResourceParseResult,
+  type ResolvedResult,
+} from "@/lib/resolver";
 
 type ScopedProps =
   | {
@@ -24,47 +31,36 @@ export default function ResolvePanel(props: ResolvePanelProps) {
   const [error, setError] = useState("");
   const [pid, setPid] = useState(props.initialPid ?? "");
 
+  const resolveScope = toResolveScope(props);
   const prefix =
     props.scope === "namespace"
       ? `${props.namespaceId}/`
       : mountPathPrefix(props.baseUri);
 
-  function showDetails() {
-    const trimmedPid = pid.trim();
-    if (!trimmedPid) {
+  function navigate(forceGo: boolean) {
+    const trimmed = pid.trim();
+    if (!trimmed) {
       setError("Please enter a PID.");
       return;
     }
     setError("");
 
-    if (props.scope === "namespace") {
-      router.push(
-        `/resolve/${encodeURIComponent(props.namespaceId)}/${encodeURIComponent(trimmedPid)}`
-      );
-      return;
-    }
-
-    const pathname = new URL(props.baseUri).pathname;
-    router.push(`${pathname}${encodeURIComponent(trimmedPid)}`);
-  }
-
-  function openUrl() {
-    const trimmedPid = pid.trim();
-    if (!trimmedPid) {
+    const hostname =
+      typeof window !== "undefined" ? window.location.hostname : "";
+    const target = scopedResourceTarget(
+      resolveScope,
+      trimmed,
+      hostname,
+      forceGo
+    );
+    if (!target) {
       setError("Please enter a PID.");
       return;
     }
-    setError("");
 
-    if (props.scope === "namespace") {
-      router.push(
-        `/resolve/${encodeURIComponent(props.namespaceId)}/${encodeURIComponent(trimmedPid)}/go`
-      );
-      return;
-    }
-
-    const pathname = new URL(props.baseUri).pathname;
-    router.push(`${pathname}${encodeURIComponent(trimmedPid)}/go`);
+    const publicBase =
+      typeof window !== "undefined" ? window.location.origin : "";
+    router.push(hrefForResolved(asResolvedForHref(target), publicBase));
   }
 
   return (
@@ -88,7 +84,7 @@ export default function ResolvePanel(props: ResolvePanelProps) {
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                showDetails();
+                navigate(false);
               }
             }}
             className="field-input-bare"
@@ -97,14 +93,14 @@ export default function ResolvePanel(props: ResolvePanelProps) {
         <div className="flex shrink-0 flex-col gap-3 sm:w-40">
           <button
             type="button"
-            onClick={showDetails}
+            onClick={() => navigate(false)}
             className="btn-primary w-full"
           >
             Show Details
           </button>
           <button
             type="button"
-            onClick={openUrl}
+            onClick={() => navigate(true)}
             className="btn-secondary w-full"
           >
             Open URL
@@ -115,6 +111,39 @@ export default function ResolvePanel(props: ResolvePanelProps) {
       {error && <div className="alert-error">{error}</div>}
     </div>
   );
+}
+
+function toResolveScope(props: ResolvePanelProps): ResolveScope {
+  if (props.scope === "namespace") {
+    return { kind: "namespace", namespaceId: props.namespaceId };
+  }
+  return {
+    kind: "mount",
+    mountPath: mountPathPrefix(props.baseUri).replace(/\/$/, ""),
+  };
+}
+
+/**
+ * hrefForResolved only emits `/go` when `exists && go`; navigation always wants
+ * the parsed target URL — existence is decided on the destination page.
+ */
+function asResolvedForHref(target: ResourceParseResult): ResolvedResult {
+  if ("namespace" in target) {
+    return {
+      kind: "resource",
+      namespace: target.namespace,
+      pid: target.pid,
+      go: target.go,
+      exists: true,
+    };
+  }
+  return {
+    kind: "resource",
+    mount: target.mount,
+    pid: target.pid,
+    go: target.go,
+    exists: true,
+  };
 }
 
 function mountPathPrefix(baseUri: string): string {

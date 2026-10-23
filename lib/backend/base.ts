@@ -1,11 +1,27 @@
 import type { components } from "./schema";
 
+type Schema = components["schemas"];
+
+/**
+ * Machine-readable Go API `error` literals from all OpenAPI `Error*` schemas
+ * (excluding the generic `ErrorResponse` base, whose `error` is plain `string`).
+ */
+export type ApiErrorCode = {
+  [K in keyof Schema]: K extends `Error${string}`
+    ? K extends "ErrorResponse"
+      ? never
+      : Schema[K] extends { error?: infer C }
+        ? Exclude<C, undefined>
+        : never
+    : never;
+}[keyof Schema];
+
 export type BackendError = {
   error: string;
   status: number;
   details?: string;
   /** OpenAPI error code from the JSON body when present (e.g. resourceNotFound). */
-  code?: string;
+  code?: ApiErrorCode;
 };
 
 export type BackendResult<T> = T | BackendError;

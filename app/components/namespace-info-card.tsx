@@ -1,3 +1,4 @@
+import CopyButton from "@/app/components/copy-button";
 import type { Namespace } from "@/lib/backend/client";
 
 type NamespaceInfoCardProps = {
@@ -11,42 +12,70 @@ export default function NamespaceInfoCard({
   mountBaseUri,
 }: NamespaceInfoCardProps) {
   return (
-    <div className="card space-y-4">
-      <h2 className="card-title">Namespace</h2>
+    <div className="card detail-stack">
+      <p className="detail-eyebrow">Namespace</p>
 
-      <div className="detail-row">
-        <span className="detail-label">ID:</span>{" "}
-        <span className="font-mono">{namespace.id}</span>
+      <div className="detail-hero">
+        <span className="sr-only">Namespace ID</span>
+        <span className="detail-hero-value">{namespace.id}</span>
+        <CopyButton value={namespace.id} label="namespace ID" />
       </div>
 
-      {mountBaseUri && (
-        <div className="detail-row">
-          <span className="detail-label">Mount:</span>{" "}
-          <span className="break-all font-mono text-sm">{mountBaseUri}</span>
+      {mountBaseUri ? (
+        <div className="detail-field">
+          <span className="detail-field-label">Mount</span>
+          <div className="detail-copy-row">
+            <span className="detail-field-value">{mountBaseUri}</span>
+            <CopyButton value={mountBaseUri} label="Mount" />
+          </div>
         </div>
-      )}
+      ) : null}
 
-      <div className="detail-row">
-        <span className="detail-label">PID format:</span>{" "}
-        <span className="font-mono">
-          {namespace.pidFormat.pattern} ({namespace.pidFormat.characters})
+      <div className="detail-field">
+        <span className="detail-field-label">PID format</span>
+        <span className="detail-field-value">
+          {namespace.pidFormat.pattern} · {namespace.pidFormat.characters}
         </span>
       </div>
 
-      <div className="detail-row">
-        <span className="detail-label">Tags:</span>{" "}
-        {namespace.tags.length > 0 ? namespace.tags.join(", ") : "None"}
-      </div>
+      {namespace.tags.length > 0 ? (
+        <div className="detail-field">
+          <span className="detail-field-label">Tags</span>
+          <span className="text-sm text-gray-900 dark:text-gray-100">
+            {namespace.tags.join(", ")}
+          </span>
+        </div>
+      ) : null}
 
-      <div className="detail-row">
-        <span className="detail-label">Date Created:</span>{" "}
-        {new Date(namespace.dateCreated).toLocaleString()}
-      </div>
+      <DetailDates
+        dateCreated={namespace.dateCreated}
+        dateUpdated={namespace.dateUpdated}
+      />
+    </div>
+  );
+}
 
-      <div className="detail-row">
-        <span className="detail-label">Date Updated:</span>{" "}
-        {new Date(namespace.dateUpdated).toLocaleString()}
+function DetailDates({
+  dateCreated,
+  dateUpdated,
+}: {
+  dateCreated: string;
+  dateUpdated: string;
+}) {
+  return (
+    <div className="detail-meta">
+      <div className="detail-meta-row">
+        <span className="detail-meta-label">Created</span>
+        <span>{formatDate(dateCreated)}</span>
+      </div>
+      <div className="detail-meta-row">
+        <span className="detail-meta-label">Updated</span>
+        <span>{formatDate(dateUpdated)}</span>
       </div>
     </div>
   );
+}
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleString();
 }

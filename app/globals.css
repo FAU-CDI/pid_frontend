@@ -143,7 +143,95 @@ body {
   }
 
   .detail-link {
-    @apply break-all text-blue-600 underline dark:text-blue-400;
+    @apply break-all font-mono text-sm text-blue-600 underline dark:text-blue-400;
+  }
+
+  .detail-stack {
+    @apply flex flex-col gap-5;
+  }
+
+  .detail-eyebrow {
+    @apply text-sm font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400;
+  }
+
+  .detail-header {
+    @apply flex flex-wrap items-center justify-between gap-2;
+  }
+
+  .detail-hero {
+    @apply flex min-w-0 items-start gap-2;
+  }
+
+  .detail-hero-value {
+    @apply min-w-0 flex-1 break-all font-mono text-xl font-medium text-gray-900 dark:text-gray-100;
+  }
+
+  .detail-hero-muted {
+    @apply text-gray-500 dark:text-gray-400;
+  }
+
+  .detail-field {
+    @apply flex flex-col gap-1.5;
+  }
+
+  .detail-field-label {
+    @apply text-sm font-semibold text-gray-700 dark:text-gray-300;
+  }
+
+  .detail-field-value {
+    @apply break-all font-mono text-sm text-gray-900 dark:text-gray-100;
+  }
+
+  .detail-field-muted {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  .detail-copy-row {
+    @apply flex min-w-0 items-start gap-2;
+  }
+
+  .detail-copy-row > :first-child {
+    @apply min-w-0 flex-1;
+  }
+
+  .detail-meta {
+    @apply space-y-1 border-t border-gray-200 pt-4 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400;
+  }
+
+  .detail-meta-row {
+    @apply flex flex-wrap gap-x-3 gap-y-0.5;
+  }
+
+  .detail-meta-label {
+    @apply w-16 shrink-0 font-medium text-gray-500 dark:text-gray-500;
+  }
+
+  .status-gone-badge {
+    @apply rounded border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300;
+  }
+
+  .status-gone {
+    @apply rounded border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200;
+  }
+
+  .copy-button {
+    @apply inline-flex size-8 shrink-0 items-center justify-center rounded border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900;
+  }
+
+  .copy-button-icon {
+    @apply size-4;
+  }
+
+  .metadata-block {
+    @apply max-h-48 overflow-auto whitespace-pre-wrap break-all rounded border border-gray-200 bg-gray-50 p-3 font-mono text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100;
+  }
+
+  .metadata-block-expanded {
+    @apply max-h-none;
+  }
+
+  .metadata-toggle {
+    @apply text-sm font-medium text-blue-700 hover:underline dark:text-blue-400;
   }
 
   .error-status {

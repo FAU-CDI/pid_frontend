@@ -5,6 +5,7 @@ import { MockClient } from "./mock-client";
 export {
   BackendClient,
   isBackendError,
+  type ApiErrorCode,
   type BackendError,
   type BackendResult,
   type Mount,

@@ -1,6 +1,8 @@
 import {
   BackendClient,
   isBackendError,
+  type ApiErrorCode,
+  type BackendError,
 } from "./backend/client";
 
 /**
@@ -18,6 +20,13 @@ export type ParseResult =
   | { kind: "namespace"; mount: string }
   | { kind: "resource"; mount: string; pid: string; go: boolean }
   | { kind: "resource"; namespace: string; pid: string; go: boolean };
+
+export type ResourceParseResult = Extract<ParseResult, { kind: "resource" }>;
+
+/** Fixed browse scope for the scoped Resolve panel (namespace UUID or mount path). */
+export type ResolveScope =
+  | { kind: "namespace"; namespaceId: string }
+  | { kind: "mount"; mountPath: string };
 
 /**
  * Parse parses a human-provided input, and finds possible parse results.
@@ -283,7 +292,8 @@ function tryParseURL(input: string): URL | null {
  * syntactically valid but the backend returned a not-found for that entity
  * (so the UI can still navigate to the matching details / not-found page).
  *
- * In case of pointing to a resource, the pid itself may or may not exist, but must be syntactically valid (i.e. the backend should return 200, 410 or 404 and *not* a generic parsing error).
+ * Resources may have `exists: false` for missing PIDs (`resourceNotFound`) or
+ * invalid PID strings (`invalidPid`); both still navigate to the details UI.
  */
 export type ResolvedResult =
   | { kind: "namespace"; namespace: string; mount?: string; exists: boolean }
@@ -305,6 +315,20 @@ export type ResolvedResult =
       exists: boolean;
     };
 
+function isSoftMiss(
+  error: Pick<BackendError, "status" | "code">,
+  notFoundCode: ApiErrorCode,
+  invalidCode: ApiErrorCode
+): boolean {
+  if (error.status === 404 && error.code === notFoundCode) {
+    return true;
+  }
+  if (error.status === 400 && error.code === invalidCode) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Resolve resolves a parse result against the API (exactly one backend request).
  *
@@ -323,7 +347,7 @@ export async function resolve(
       const mount = client.resolveMountUri(result.mount, base_uri);
       const data = await client.getMount(mount);
       if (isBackendError(data)) {
-        if (data.status === 404 && data.code === "mountNotFound") {
+        if (isSoftMiss(data, "mountNotFound", "invalidBaseUri")) {
           return { kind: "namespace", mount, exists: false };
         }
         return null;
@@ -338,7 +362,7 @@ export async function resolve(
 
     const data = await client.getNamespace(result.namespace);
     if (isBackendError(data)) {
-      if (data.status === 404 && data.code === "namespaceNotFound") {
+      if (isSoftMiss(data, "namespaceNotFound", "invalidNamespaceId")) {
         return {
           kind: "namespace",
           namespace: result.namespace,
@@ -359,7 +383,7 @@ export async function resolve(
     const mount = client.resolveMountUri(result.mount, base_uri);
     const data = await client.getResourceByMount(mount, result.pid);
     if (isBackendError(data)) {
-      if (data.status === 404 && data.code === "resourceNotFound") {
+      if (isSoftMiss(data, "resourceNotFound", "invalidPid")) {
         return {
           kind: "resource",
           mount,
@@ -382,7 +406,7 @@ export async function resolve(
 
   const data = await client.getResourceByNamespace(result.namespace, result.pid);
   if (isBackendError(data)) {
-    if (data.status === 404 && data.code === "resourceNotFound") {
+    if (isSoftMiss(data, "resourceNotFound", "invalidPid")) {
       return {
         kind: "resource",
         namespace: result.namespace,
@@ -400,6 +424,93 @@ export async function resolve(
     go: result.go,
     exists: true,
   };
+}
+
+/**
+ * Homepage-equivalent query for a scoped Resolve field: selected scope + trimmed input.
+ * Leading slashes are stripped from the field so `/pid` and `pid` behave the same.
+ */
+export function composeScopedQuery(
+  scope: ResolveScope,
+  fieldInput: string
+): string {
+  const rest = fieldInput.trim().replace(/^\/+/, "");
+  if (scope.kind === "namespace") {
+    return rest
+      ? `resolve/${scope.namespaceId}/${rest}`
+      : `resolve/${scope.namespaceId}`;
+  }
+  const mountPath = scope.mountPath.replace(/^\/+|\/+$/g, "");
+  return rest ? `${mountPath}/${rest}` : mountPath;
+}
+
+function normalizeMountPath(mount: string): string {
+  if (mount.includes("://")) {
+    try {
+      return new URL(mount).pathname.replace(/^\/+|\/+$/g, "");
+    } catch {
+      return mount.replace(/^\/+|\/+$/g, "");
+    }
+  }
+  return mount.replace(/^\/+|\/+$/g, "");
+}
+
+function resourceMatchesScope(
+  candidate: ResourceParseResult,
+  scope: ResolveScope
+): boolean {
+  if (scope.kind === "namespace") {
+    return (
+      "namespace" in candidate && candidate.namespace === scope.namespaceId
+    );
+  }
+  if (!("mount" in candidate)) {
+    return false;
+  }
+  return (
+    normalizeMountPath(candidate.mount) === normalizeMountPath(scope.mountPath)
+  );
+}
+
+/**
+ * Parse as if the homepage field received {@link composeScopedQuery}, then keep
+ * only resource candidates under the selected scope.
+ */
+export function parseScopedPIDField(
+  scope: ResolveScope,
+  fieldInput: string,
+  hostname: string
+): ResourceParseResult[] {
+  const query = composeScopedQuery(scope, fieldInput);
+  return parsePIDField(query, hostname).filter(
+    (candidate): candidate is ResourceParseResult =>
+      candidate.kind === "resource" && resourceMatchesScope(candidate, scope)
+  );
+}
+
+/**
+ * First scoped resource reading for the Resolve panel.
+ * `forceGo` (Open URL) sets `go: true` even when the field omits `/go`.
+ * Returns null when the field is empty or nothing under the scope parses as a resource.
+ */
+export function scopedResourceTarget(
+  scope: ResolveScope,
+  fieldInput: string,
+  hostname: string,
+  forceGo: boolean
+): ResourceParseResult | null {
+  if (!fieldInput.trim()) {
+    return null;
+  }
+  const candidates = parseScopedPIDField(scope, fieldInput, hostname);
+  const first = candidates[0];
+  if (!first) {
+    return null;
+  }
+  if (forceGo && !first.go) {
+    return { ...first, go: true };
+  }
+  return first;
 }
 
 /**

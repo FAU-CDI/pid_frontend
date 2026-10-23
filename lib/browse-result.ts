@@ -1,4 +1,5 @@
 import type {
+  ApiErrorCode,
   BackendError,
   Resource,
   ResourceByMount,
@@ -11,33 +12,54 @@ import type {
  */
 export type BrowseErrorAction = "not-found" | "error";
 
+const SOFT_NOT_FOUND_CODES: ReadonlySet<ApiErrorCode> = new Set([
+  "invalidPid",
+  "invalidBaseUri",
+  "invalidNamespaceId",
+]);
+
 /** Map a backend error status to the browse-page action. */
 export function browseErrorAction(error: BackendError): BrowseErrorAction {
   if (error.status === 404) {
+    return "not-found";
+  }
+  if (error.status === 400 && error.code && SOFT_NOT_FOUND_CODES.has(error.code)) {
     return "not-found";
   }
   return "error";
 }
 
 /**
- * Distinguishes 404s for PID/details pages:
- * - `scope-missing` — mount/namespace does not exist → plain error UI (no clickable scope)
- * - `resource-missing` — scope exists, PID does not → scoped Resolve + PID not-found card
+ * Distinguishes not-found browse UIs for PID/details pages:
+ * - `scope-missing` — mount/namespace does not exist (or invalid) → plain error UI
+ * - `resource-missing` — scope exists, PID does not (or PID string is invalid) → scoped Resolve + PID card
  *
- * Only `resourceNotFound` is treated as resource-missing; unknown 404s stay plain.
+ * `resourceNotFound` / `invalidPid` → resource-missing; other 404s and invalid scope codes stay plain.
  */
 export type BrowseNotFoundKind = "scope-missing" | "resource-missing";
 
 export function browseNotFoundKind(
   error: BackendError
 ): BrowseNotFoundKind | null {
-  if (error.status !== 404) {
+  if (error.status === 404) {
+    if (error.code === "resourceNotFound") {
+      return "resource-missing";
+    }
+    return "scope-missing";
+  }
+  if (error.status === 400) {
+    if (error.code === "invalidPid") {
+      return "resource-missing";
+    }
+    if (
+      error.code === "invalidNamespaceId" ||
+      error.code === "invalidBaseUri"
+    ) {
+      return "scope-missing";
+    }
     return null;
   }
-  if (error.code === "resourceNotFound") {
-    return "resource-missing";
-  }
-  return "scope-missing";
+  return null;
 }
 
 /**

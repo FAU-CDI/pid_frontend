@@ -27,6 +27,12 @@ export const pidNotFound = {
   message: "The PID was not found.",
 } as const;
 
+/** Soft-deleted / redacted PID shown on details cards (not an HTTP error page). */
+export const pidNoLongerAvailable = {
+  badge: "No longer available",
+  message: "This PID no longer exists.",
+} as const;
+
 /** Missing mount or namespace (plain error UI; no scoped breadcrumbs). */
 export const namespaceMissing = {
   status: 404,

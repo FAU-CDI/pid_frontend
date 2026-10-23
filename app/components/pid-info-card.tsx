@@ -1,3 +1,7 @@
+import CopyButton from "@/app/components/copy-button";
+import ExpandableMono from "@/app/components/expandable-mono";
+import { pidNoLongerAvailable } from "@/lib/user-facing";
+
 export type PidInfoData = {
   pid: string;
   url: string | null;
@@ -22,14 +26,11 @@ type PidInfoCardProps =
 export default function PidInfoCard(props: PidInfoCardProps) {
   if (props.status === "not-found") {
     return (
-      <div className="card space-y-4">
-        <h2 className="card-title">PID Details</h2>
-        <div className="detail-row">
-          <span className="detail-label">PID:</span>{" "}
-          <span className="font-mono">{props.pid}</span>
-        </div>
+      <div className="card detail-stack">
+        <p className="detail-eyebrow">PID</p>
+        <PidHero value={props.pid} />
         <div className="alert-error mt-0">
-          {props.message ?? "The requested PID does not exist in this context."}
+          {props.message ?? "This PID was not found."}
         </div>
       </div>
     );
@@ -37,55 +38,109 @@ export default function PidInfoCard(props: PidInfoCardProps) {
 
   const { data } = props;
 
-  return (
-    <div className="card space-y-4">
-      <h2 className="card-title">PID Details</h2>
-
-      <div className="detail-row">
-        <span className="detail-label">PID:</span>{" "}
-        <span className="font-mono">{data.pid}</span>
+  if (data.deleted) {
+    return (
+      <div className="card detail-stack">
+        <div className="detail-header">
+          <p className="detail-eyebrow">PID</p>
+          <span className="status-gone-badge">{pidNoLongerAvailable.badge}</span>
+        </div>
+        <PidHero value={data.pid} muted />
+        <div className="status-gone">{pidNoLongerAvailable.message}</div>
+        <DetailDates
+          dateCreated={data.dateCreated}
+          dateUpdated={data.dateUpdated}
+        />
       </div>
+    );
+  }
 
-      <div className="detail-row">
-        <span className="detail-label">URL:</span>{" "}
+  return (
+    <div className="card detail-stack">
+      <p className="detail-eyebrow">PID</p>
+      <PidHero value={data.pid} />
+
+      <div className="detail-field">
+        <span className="detail-field-label">URL</span>
         {data.url ? (
-          <a
-            href={data.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="detail-link"
-          >
-            {data.url}
-          </a>
+          <div className="detail-copy-row">
+            <a
+              href={data.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="detail-link"
+            >
+              {data.url}
+            </a>
+            <CopyButton value={data.url} label="URL" />
+          </div>
         ) : (
-          "Not available"
+          <span className="detail-field-muted">No URL</span>
         )}
       </div>
 
-      <div className="detail-row">
-        <span className="detail-label">Metadata:</span>{" "}
-        {data.metadata ?? "Not available"}
-      </div>
+      {data.metadata ? (
+        <div className="detail-field">
+          <span className="detail-field-label">Metadata</span>
+          <ExpandableMono value={data.metadata} copyLabel="metadata" />
+        </div>
+      ) : null}
 
-      <div className="detail-row">
-        <span className="detail-label">Date Created:</span>{" "}
-        {new Date(data.dateCreated).toLocaleString()}
-      </div>
+      {data.tags.length > 0 ? (
+        <div className="detail-field">
+          <span className="detail-field-label">Tags</span>
+          <span className="text-sm text-gray-900 dark:text-gray-100">
+            {data.tags.join(", ")}
+          </span>
+        </div>
+      ) : null}
 
-      <div className="detail-row">
-        <span className="detail-label">Date Updated:</span>{" "}
-        {new Date(data.dateUpdated).toLocaleString()}
-      </div>
+      <DetailDates
+        dateCreated={data.dateCreated}
+        dateUpdated={data.dateUpdated}
+      />
+    </div>
+  );
+}
 
-      <div className="detail-row">
-        <span className="detail-label">Tags:</span>{" "}
-        {data.tags.length > 0 ? data.tags.join(", ") : "None"}
-      </div>
+function PidHero({ value, muted = false }: { value: string; muted?: boolean }) {
+  return (
+    <div className="detail-hero">
+      <span
+        className={
+          muted
+            ? "detail-hero-value detail-hero-muted"
+            : "detail-hero-value"
+        }
+      >
+        {value}
+      </span>
+      <CopyButton value={value} label="PID" />
+    </div>
+  );
+}
 
-      <div className="detail-row">
-        <span className="detail-label">Deleted:</span>{" "}
-        {data.deleted ? "Yes" : "No"}
+function DetailDates({
+  dateCreated,
+  dateUpdated,
+}: {
+  dateCreated: string;
+  dateUpdated: string;
+}) {
+  return (
+    <div className="detail-meta">
+      <div className="detail-meta-row">
+        <span className="detail-meta-label">Created</span>
+        <span>{formatDate(dateCreated)}</span>
+      </div>
+      <div className="detail-meta-row">
+        <span className="detail-meta-label">Updated</span>
+        <span>{formatDate(dateUpdated)}</span>
       </div>
     </div>
   );
+}
+
+function formatDate(value: string): string {
+  return new Date(value).toLocaleString();
 }

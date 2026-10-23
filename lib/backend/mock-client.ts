@@ -1,6 +1,7 @@
 import {
   BackendClient,
   isBackendError,
+  type ApiErrorCode,
   type BackendError,
   type BackendResult,
   type Mount,
@@ -128,6 +129,6 @@ function normalizeMountUri(baseUri: string): string {
   return baseUri.replace(/\/+$/, "") + "/";
 }
 
-function notFound(error: string, code: string): BackendError {
+function notFound(error: string, code: ApiErrorCode): BackendError {
   return { error, status: 404, code };
 }

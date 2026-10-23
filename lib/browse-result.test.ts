@@ -11,12 +11,39 @@ describe("browseErrorAction", () => {
     ).toBe("not-found");
   });
 
+  it("maps invalid PID / scope parse errors (400) to not-found UI", () => {
+    expect(
+      browseErrorAction({
+        error: "invalid",
+        status: 400,
+        code: "invalidPid",
+      })
+    ).toBe("not-found");
+    expect(
+      browseErrorAction({
+        error: "invalid",
+        status: 400,
+        code: "invalidBaseUri",
+      })
+    ).toBe("not-found");
+    expect(
+      browseErrorAction({
+        error: "invalid",
+        status: 400,
+        code: "invalidNamespaceId",
+      })
+    ).toBe("not-found");
+  });
+
   it("maps other statuses to throw (5xx path)", () => {
     expect(
       browseErrorAction({ error: "Backend unavailable", status: 502 })
     ).toBe("error");
     expect(
       browseErrorAction({ error: "Server configuration error", status: 500 })
+    ).toBe("error");
+    expect(
+      browseErrorAction({ error: "bad request", status: 400, code: "other" })
     ).toBe("error");
   });
 });
@@ -42,7 +69,7 @@ describe("browseNotFoundKind", () => {
     ).toBe("scope-missing");
   });
 
-  it("uses scoped PID UI only for resourceNotFound", () => {
+  it("uses scoped PID UI for resourceNotFound and invalidPid", () => {
     expect(
       browseNotFoundKind({
         error: "PID not found",
@@ -50,11 +77,38 @@ describe("browseNotFoundKind", () => {
         code: "resourceNotFound",
       })
     ).toBe("resource-missing");
+    expect(
+      browseNotFoundKind({
+        error: "invalid",
+        status: 400,
+        code: "invalidPid",
+      })
+    ).toBe("resource-missing");
   });
 
-  it("returns null for non-404", () => {
+  it("uses plain UI for invalid namespace or mount on 400", () => {
+    expect(
+      browseNotFoundKind({
+        error: "invalid",
+        status: 400,
+        code: "invalidNamespaceId",
+      })
+    ).toBe("scope-missing");
+    expect(
+      browseNotFoundKind({
+        error: "invalid",
+        status: 400,
+        code: "invalidBaseUri",
+      })
+    ).toBe("scope-missing");
+  });
+
+  it("returns null for non-not-found statuses", () => {
     expect(
       browseNotFoundKind({ error: "Backend unavailable", status: 502 })
+    ).toBeNull();
+    expect(
+      browseNotFoundKind({ error: "bad", status: 400, code: "other" })
     ).toBeNull();
   });
 });
