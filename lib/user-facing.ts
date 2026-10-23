@@ -24,12 +24,12 @@ export const pidHasNoUrl = {
 export const pidNotFound = {
   status: 404,
   title: "Not found",
-  message: "The PID was not found.",
+  message: "This PID was not found.",
 } as const;
 
 /** Soft-deleted / redacted PID shown on details cards (not an HTTP error page). */
 export const pidNoLongerAvailable = {
-  badge: "No longer available",
+  badge: "Deleted",
   message: "This PID no longer exists.",
 } as const;
 

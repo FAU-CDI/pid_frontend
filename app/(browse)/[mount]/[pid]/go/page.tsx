@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
+import PidInfoCard from "@/app/components/pid-info-card";
 import ResolvePanel from "@/app/components/resolve-panel";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
 import StatusInfoCard from "@/app/components/status-info-card";
@@ -67,7 +68,7 @@ export default async function MountPidGoPage({
         return (
           <ResolverPage
             breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-            resolve={<GlobalResolveForm />}
+            resolve={<GlobalResolveForm defaultQuery={`${mount}/${pid}`} />}
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
@@ -84,8 +85,7 @@ export default async function MountPidGoPage({
           breadcrumbs={[
             homeBreadcrumb(),
             { href: mountHref, label: mount },
-            { href: detailsHref, label: pid },
-            { label: "URL" },
+            { label: "Error" },
           ]}
           resolve={
             <ResolvePanel
@@ -96,13 +96,7 @@ export default async function MountPidGoPage({
               initialPid={pid}
             />
           }
-          info={
-            <StatusInfoCard
-              status={pidNotFound.status}
-              title={pidNotFound.title}
-              message={pidNotFound.message}
-            />
-          }
+          info={<PidInfoCard status="not-found" />}
         />
       );
     }

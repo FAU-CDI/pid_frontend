@@ -1,21 +1,21 @@
 type StatusInfoCardProps = {
+  /** Kept for call-site compatibility; not shown in the UI. */
   status?: number;
   title: string;
   message: string;
 };
 
 export default function StatusInfoCard({
-  status,
   title,
   message,
 }: StatusInfoCardProps) {
   return (
-    <div className="card space-y-4">
-      <h2 className="card-title">{title}</h2>
-      {typeof status === "number" && (
-        <div className="error-status text-4xl">{status}</div>
-      )}
-      <p className="card-body mt-0">{message}</p>
+    <div className="card detail-stack">
+      <div className="detail-header">
+        <p className="detail-eyebrow">{title}</p>
+        <span className="status-error-badge">{title}</span>
+      </div>
+      <div className="status-error">{message}</div>
     </div>
   );
 }

@@ -1,9 +1,8 @@
-import { DEFAULT_RESOLVE_EXAMPLE } from "@/lib/resolve-example";
+import { resolveExamplePlaceholder } from "@/lib/resolve-example";
 
 type GlobalResolveFormProps = {
   /** Prefill for the q field (e.g. from `/?q=` or a prior query). */
   defaultQuery?: string;
-  placeholder?: string;
   error?: string;
 };
 
@@ -12,7 +11,6 @@ type GlobalResolveFormProps = {
  */
 export default function GlobalResolveForm({
   defaultQuery = "",
-  placeholder = DEFAULT_RESOLVE_EXAMPLE,
   error,
 }: GlobalResolveFormProps) {
   return (
@@ -26,7 +24,7 @@ export default function GlobalResolveForm({
           type="text"
           name="q"
           defaultValue={defaultQuery}
-          placeholder={placeholder}
+          placeholder={resolveExamplePlaceholder()}
           autoComplete="off"
           aria-label="Namespace or PID"
           className="field-input"

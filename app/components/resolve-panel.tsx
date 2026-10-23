@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { hrefForResolved } from "@/lib/resolve-href";
+import { encodeMountPath, hrefForResolved } from "@/lib/resolve-href";
 import {
   scopedResourceTarget,
   type ResolveScope,
@@ -37,10 +37,19 @@ export default function ResolvePanel(props: ResolvePanelProps) {
       ? `${props.namespaceId}/`
       : mountPathPrefix(props.baseUri);
 
+  function scopeOverviewHref(): string {
+    if (props.scope === "namespace") {
+      return `/resolve/${encodeURIComponent(props.namespaceId)}`;
+    }
+    const mountPath = mountPathPrefix(props.baseUri).replace(/\/$/, "");
+    return mountPath ? `/${encodeMountPath(mountPath)}` : "/";
+  }
+
   function navigate(forceGo: boolean) {
     const trimmed = pid.trim();
     if (!trimmed) {
-      setError("Please enter a PID.");
+      setError("");
+      router.push(scopeOverviewHref());
       return;
     }
     setError("");

@@ -40,7 +40,7 @@ export default async function MountPage({
       return (
         <ResolverPage
           breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<GlobalResolveForm />}
+          resolve={<GlobalResolveForm defaultQuery={mount} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}
@@ -61,7 +61,7 @@ export default async function MountPage({
       return (
         <ResolverPage
           breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<GlobalResolveForm />}
+          resolve={<GlobalResolveForm defaultQuery={mount} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}

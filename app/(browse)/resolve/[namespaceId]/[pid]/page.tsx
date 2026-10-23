@@ -11,9 +11,11 @@ import {
 import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
 import { namespaceMissing } from "@/lib/user-facing";
 
-function toPidInfoData(result: Resource) {
+function toPidInfoData(result: Resource, namespaceId: string) {
   return {
     pid: result.pid,
+    scope: namespaceId,
+    absolute: `resolve/${namespaceId}/${result.pid}`,
     url: "url" in result ? result.url : null,
     metadata: "metadata" in result ? result.metadata : null,
     dateCreated: result.dateCreated,
@@ -46,7 +48,11 @@ export default async function NamespacePidPage({
         return (
           <ResolverPage
             breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-            resolve={<GlobalResolveForm />}
+            resolve={
+              <GlobalResolveForm
+                defaultQuery={`resolve/${namespaceId}/${pid}`}
+              />
+            }
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
@@ -63,7 +69,7 @@ export default async function NamespacePidPage({
           breadcrumbs={[
             homeBreadcrumb(),
             { href: namespaceHref, label: namespaceId },
-            { label: pid },
+            { label: "Error" },
           ]}
           resolve={
             <ResolvePanel
@@ -74,13 +80,7 @@ export default async function NamespacePidPage({
               initialPid={pid}
             />
           }
-          info={
-            <PidInfoCard
-              status="not-found"
-              pid={pid}
-              message="This PID was not found."
-            />
-          }
+          info={<PidInfoCard status="not-found" />}
         />
       );
     }
@@ -103,7 +103,12 @@ export default async function NamespacePidPage({
           initialPid={pid}
         />
       }
-      info={<PidInfoCard status="found" data={toPidInfoData(result)} />}
+      info={
+        <PidInfoCard
+          status="found"
+          data={toPidInfoData(result, namespaceId)}
+        />
+      }
     />
   );
 }

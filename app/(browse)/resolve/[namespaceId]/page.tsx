@@ -22,7 +22,7 @@ export default async function NamespacePage({
   if (!namespaceId.trim()) {
     return (
       <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Invalid" }]}
+        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
         resolve={<GlobalResolveForm />}
         info={
           <StatusInfoCard
@@ -42,7 +42,7 @@ export default async function NamespacePage({
       return (
         <ResolverPage
           breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<GlobalResolveForm />}
+          resolve={<GlobalResolveForm defaultQuery={namespaceId} />}
           info={
             <StatusInfoCard
               status={namespaceMissing.status}

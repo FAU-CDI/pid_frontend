@@ -1,9 +1,13 @@
 import CopyButton from "@/app/components/copy-button";
 import ExpandableMono from "@/app/components/expandable-mono";
-import { pidNoLongerAvailable } from "@/lib/user-facing";
+import { pidNoLongerAvailable, pidNotFound } from "@/lib/user-facing";
 
 export type PidInfoData = {
   pid: string;
+  /** Muted path prefix: namespace id or mount path. */
+  scope: string;
+  /** Pasteable into the homepage Resolve field. */
+  absolute: string;
   url: string | null;
   metadata: string | null;
   dateCreated: string;
@@ -19,19 +23,20 @@ type PidInfoCardProps =
     }
   | {
       status: "not-found";
-      pid: string;
       message?: string;
     };
 
 export default function PidInfoCard(props: PidInfoCardProps) {
   if (props.status === "not-found") {
+    const title = pidNotFound.title;
+    const message = props.message ?? pidNotFound.message;
     return (
       <div className="card detail-stack">
-        <p className="detail-eyebrow">PID</p>
-        <PidHero value={props.pid} />
-        <div className="alert-error mt-0">
-          {props.message ?? "This PID was not found."}
+        <div className="detail-header">
+          <p className="detail-eyebrow">{title}</p>
+          <span className="status-error-badge">{title}</span>
         </div>
+        <div className="status-error">{message}</div>
       </div>
     );
   }
@@ -45,7 +50,12 @@ export default function PidInfoCard(props: PidInfoCardProps) {
           <p className="detail-eyebrow">PID</p>
           <span className="status-gone-badge">{pidNoLongerAvailable.badge}</span>
         </div>
-        <PidHero value={data.pid} muted />
+        <PidHero
+          scope={data.scope}
+          pid={data.pid}
+          absolute={data.absolute}
+          muted
+        />
         <div className="status-gone">{pidNoLongerAvailable.message}</div>
         <DetailDates
           dateCreated={data.dateCreated}
@@ -58,7 +68,11 @@ export default function PidInfoCard(props: PidInfoCardProps) {
   return (
     <div className="card detail-stack">
       <p className="detail-eyebrow">PID</p>
-      <PidHero value={data.pid} />
+      <PidHero
+        scope={data.scope}
+        pid={data.pid}
+        absolute={data.absolute}
+      />
 
       <div className="detail-field">
         <span className="detail-field-label">URL</span>
@@ -75,7 +89,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
             <CopyButton value={data.url} label="URL" />
           </div>
         ) : (
-          <span className="detail-field-muted">No URL</span>
+          <span className="detail-field-muted">None</span>
         )}
       </div>
 
@@ -89,9 +103,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
       {data.tags.length > 0 ? (
         <div className="detail-field">
           <span className="detail-field-label">Tags</span>
-          <span className="text-sm text-gray-900 dark:text-gray-100">
-            {data.tags.join(", ")}
-          </span>
+          <TagList tags={data.tags} />
         </div>
       ) : null}
 
@@ -103,19 +115,48 @@ export default function PidInfoCard(props: PidInfoCardProps) {
   );
 }
 
-function PidHero({ value, muted = false }: { value: string; muted?: boolean }) {
+function TagList({ tags }: { tags: string[] }) {
+  return (
+    <div className="detail-tag-list">
+      {tags.map((tag) => (
+        <span key={tag} className="detail-tag">
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function PidHero({
+  scope,
+  pid,
+  absolute,
+  muted = false,
+}: {
+  scope: string;
+  pid: string;
+  absolute: string;
+  muted?: boolean;
+}) {
   return (
     <div className="detail-hero">
-      <span
+      <p
         className={
           muted
-            ? "detail-hero-value detail-hero-muted"
-            : "detail-hero-value"
+            ? "detail-hero-path detail-hero-muted"
+            : "detail-hero-path"
         }
       >
-        {value}
-      </span>
-      <CopyButton value={value} label="PID" />
+        <span className="detail-hero-scope">{scope}</span>
+        <span className="detail-hero-sep" aria-hidden="true">
+          /
+        </span>
+        <span className="detail-hero-pid">{pid}</span>
+      </p>
+      <div className="copy-button-group" role="group" aria-label="Copy">
+        <CopyButton value={pid} label="PID" caption="PID" />
+        <CopyButton value={absolute} label="full path" caption="Full" />
+      </div>
     </div>
   );
 }

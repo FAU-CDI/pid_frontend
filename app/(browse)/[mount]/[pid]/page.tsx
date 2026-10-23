@@ -7,15 +7,17 @@ import StatusInfoCard from "@/app/components/status-info-card";
 import {
   getBackendClient,
   isBackendError,
-  type Resource,
+  type ResourceByMount,
 } from "@/lib/backend/client";
 import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
 import { encodeMountPath } from "@/lib/resolve-href";
 import { namespaceMissing } from "@/lib/user-facing";
 
-function toPidInfoData(result: Resource) {
+function toPidInfoData(result: ResourceByMount, mount: string) {
   return {
     pid: result.pid,
+    scope: mount,
+    absolute: `${mount}/${result.pid}`,
     url: "url" in result ? result.url : null,
     metadata: "metadata" in result ? result.metadata : null,
     dateCreated: result.dateCreated,
@@ -55,7 +57,7 @@ export default async function MountPidPage({
         return (
           <ResolverPage
             breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-            resolve={<GlobalResolveForm />}
+            resolve={<GlobalResolveForm defaultQuery={`${mount}/${pid}`} />}
             info={
               <StatusInfoCard
                 status={namespaceMissing.status}
@@ -72,7 +74,7 @@ export default async function MountPidPage({
           breadcrumbs={[
             homeBreadcrumb(),
             { href: mountHref, label: mount },
-            { label: pid },
+            { label: "Error" },
           ]}
           resolve={
             <ResolvePanel
@@ -83,13 +85,7 @@ export default async function MountPidPage({
               initialPid={pid}
             />
           }
-          info={
-            <PidInfoCard
-              status="not-found"
-              pid={pid}
-              message="This PID was not found."
-            />
-          }
+          info={<PidInfoCard status="not-found" />}
         />
       );
     }
@@ -112,7 +108,12 @@ export default async function MountPidPage({
           initialPid={pid}
         />
       }
-      info={<PidInfoCard status="found" data={toPidInfoData(result)} />}
+      info={
+        <PidInfoCard
+          status="found"
+          data={toPidInfoData(result, mount)}
+        />
+      }
     />
   );
 }

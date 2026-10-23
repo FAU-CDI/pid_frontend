@@ -34,6 +34,7 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - Never render untrusted request input (query params, path segments used as prose, headers, etc.) as error **title** or **message** in the UI.
   There must be no page that lets callers inject custom error titles or messages via the URL.
   User-visible error copy must come from server-defined constants (or fixed page content), keyed at most by an opaque allowlisted code.
+  Prefilling Resolve form fields with the failed path or query is fine; that input must not appear in error titles or messages.
 - Uniform HTTP, no client sniffing: never vary status, headers, or body based on `Accept`, `User-Agent`, or other client fingerprints.
   The same URL must behave the same for browsers, curl, and every other client.
   Do not invent hacky content-negotiation substitutes.

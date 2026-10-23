@@ -6,9 +6,15 @@ type CopyButtonProps = {
   value: string;
   /** Used in aria-label / title, e.g. "URL" → "Copy URL". */
   label: string;
+  /** Optional visible caption beside the icon (e.g. "PID", "Full"). */
+  caption?: string;
 };
 
-export default function CopyButton({ value, label }: CopyButtonProps) {
+export default function CopyButton({
+  value,
+  label,
+  caption,
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
   const resetRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -41,12 +47,17 @@ export default function CopyButton({ value, label }: CopyButtonProps) {
   return (
     <button
       type="button"
-      className="copy-button"
+      className={caption ? "copy-button copy-button-labeled" : "copy-button"}
       onClick={copy}
       aria-label={title}
       title={title}
     >
       {copied ? <CheckIcon /> : <ClipboardIcon />}
+      {caption ? (
+        <span className="copy-button-caption">
+          {copied ? "Copied" : caption}
+        </span>
+      ) : null}
     </button>
   );
 }

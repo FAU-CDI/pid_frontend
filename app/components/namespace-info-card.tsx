@@ -33,17 +33,21 @@ export default function NamespaceInfoCard({
 
       <div className="detail-field">
         <span className="detail-field-label">PID format</span>
-        <span className="detail-field-value">
+        <pre className="detail-code">
           {namespace.pidFormat.pattern} · {namespace.pidFormat.characters}
-        </span>
+        </pre>
       </div>
 
       {namespace.tags.length > 0 ? (
         <div className="detail-field">
           <span className="detail-field-label">Tags</span>
-          <span className="text-sm text-gray-900 dark:text-gray-100">
-            {namespace.tags.join(", ")}
-          </span>
+          <div className="detail-tag-list">
+            {namespace.tags.map((tag) => (
+              <span key={tag} className="detail-tag">
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       ) : null}
 

@@ -5,7 +5,6 @@ import GlobalResolveForm from "@/app/components/global-resolve-form";
 import ResolverPage, { homeBreadcrumb } from "@/app/components/resolver-page";
 import { getBackendClient } from "@/lib/backend/client";
 import { hrefForResolved } from "@/lib/resolve-href";
-import { resolveExamplePlaceholder } from "@/lib/resolve-example";
 import { resolveFirst } from "@/lib/resolver";
 
 export default async function HomePage({
@@ -15,7 +14,6 @@ export default async function HomePage({
 }) {
   const params = await searchParams;
   const q = params.q?.trim() ?? "";
-  const placeholder = resolveExamplePlaceholder();
 
   let error: string | undefined;
 
@@ -48,11 +46,7 @@ export default async function HomePage({
     <ResolverPage
       breadcrumbs={[homeBreadcrumb()]}
       resolve={
-        <GlobalResolveForm
-          defaultQuery={q}
-          placeholder={placeholder}
-          error={error}
-        />
+        <GlobalResolveForm defaultQuery={q} error={error} />
       }
       info={<AboutInfoCard />}
     />
