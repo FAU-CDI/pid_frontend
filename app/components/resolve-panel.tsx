@@ -56,18 +56,15 @@ export default function ResolvePanel(props: ResolvePanelProps) {
     }
     setError("");
 
-    // Full navigation so the browser follows the /go redirect without App Router soft-nav overhead.
     if (props.scope === "namespace") {
-      window.location.assign(
+      router.push(
         `/resolve/${encodeURIComponent(props.namespaceId)}/${encodeURIComponent(trimmedPid)}/go`
       );
       return;
     }
 
     const pathname = new URL(props.baseUri).pathname;
-    window.location.assign(
-      `${pathname}${encodeURIComponent(trimmedPid)}/go`
-    );
+    router.push(`${pathname}${encodeURIComponent(trimmedPid)}/go`);
   }
 
   return (

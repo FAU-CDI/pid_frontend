@@ -7,7 +7,8 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
-import { serviceStatusCopy } from "@/lib/user-facing";
+import { browseErrorAction } from "@/lib/browse-result";
+import { namespaceMissing } from "@/lib/user-facing";
 
 export default async function NamespacePage({
   params,
@@ -37,57 +38,27 @@ export default async function NamespacePage({
   const result = await getBackendClient().getNamespace(namespaceId);
 
   if (isBackendError(result)) {
-    if (result.status === 500) {
-      throw new Error("Missing BACKEND_URL");
-    }
-
-    if (result.status === 404) {
+    if (browseErrorAction(result) === "not-found") {
       return (
         <ResolverPage
-          breadcrumbs={[
-            homeBreadcrumb(),
-            { label: namespaceId },
-          ]}
-          resolve={
-            <GlobalResolveForm
-              key={namespaceId}
-              defaultQuery={namespaceId}
-            />
-          }
+          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          resolve={<GlobalResolveForm />}
           info={
             <StatusInfoCard
-              status={404}
-              title="Invalid Namespace"
-              message={`The namespace ${namespaceId} does not exist.`}
+              status={namespaceMissing.status}
+              title={namespaceMissing.title}
+              message={namespaceMissing.message}
             />
           }
         />
       );
     }
-
-    const copy = serviceStatusCopy(result.error === "Backend unavailable");
-
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={result.status === 502 ? 502 : result.status}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+    throw new Error(result.error);
   }
 
   return (
     <ResolverPage
-      breadcrumbs={[
-        homeBreadcrumb(),
-        { label: namespaceId },
-      ]}
+      breadcrumbs={[homeBreadcrumb(), { label: namespaceId }]}
       resolve={
         <ResolvePanel
           key={namespaceId}

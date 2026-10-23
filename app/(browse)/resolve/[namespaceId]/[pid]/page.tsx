@@ -8,10 +8,8 @@ import {
   isBackendError,
   type Resource,
 } from "@/lib/backend/client";
-import {
-  serviceNotAvailable,
-  serviceStatusCopy,
-} from "@/lib/user-facing";
+import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
+import { namespaceMissing } from "@/lib/user-facing";
 
 function toPidInfoData(result: Resource) {
   return {
@@ -35,24 +33,7 @@ export default async function NamespacePidPage({
 }) {
   const { namespaceId, pid } = await params;
 
-  const crumbs = [
-    homeBreadcrumb(),
-    {
-      href: `/resolve/${encodeURIComponent(namespaceId)}`,
-      label: namespaceId,
-    },
-    { label: pid },
-  ] as const;
-
-  const resolvePanel = (
-    <ResolvePanel
-      key={`${namespaceId}/${pid}`}
-      mode="scoped"
-      scope="namespace"
-      namespaceId={namespaceId}
-      initialPid={pid}
-    />
-  );
+  const namespaceHref = `/resolve/${encodeURIComponent(namespaceId)}`;
 
   const result = await getBackendClient().getResourceByNamespace(
     namespaceId,
@@ -60,59 +41,68 @@ export default async function NamespacePidPage({
   );
 
   if (isBackendError(result)) {
-    if (result.status === 500) {
+    if (browseErrorAction(result) === "not-found") {
+      if (browseNotFoundKind(result) === "scope-missing") {
+        return (
+          <ResolverPage
+            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            resolve={<GlobalResolveForm />}
+            info={
+              <StatusInfoCard
+                status={namespaceMissing.status}
+                title={namespaceMissing.title}
+                message={namespaceMissing.message}
+              />
+            }
+          />
+        );
+      }
+
       return (
         <ResolverPage
-          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<GlobalResolveForm />}
-          info={
-            <StatusInfoCard
-              status={500}
-              title={serviceNotAvailable.title}
-              message={serviceNotAvailable.message}
+          breadcrumbs={[
+            homeBreadcrumb(),
+            { href: namespaceHref, label: namespaceId },
+            { label: pid },
+          ]}
+          resolve={
+            <ResolvePanel
+              key={`${namespaceId}/${pid}`}
+              mode="scoped"
+              scope="namespace"
+              namespaceId={namespaceId}
+              initialPid={pid}
             />
           }
-        />
-      );
-    }
-
-    if (result.status === 404) {
-      return (
-        <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
           info={
             <PidInfoCard
               status="not-found"
               pid={pid}
-              message="The requested PID does not exist in this namespace."
+              message="This PID was not found."
             />
           }
         />
       );
     }
-
-    const copy = serviceStatusCopy(result.error === "Backend unavailable");
-
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={result.status === 502 ? 502 : result.status}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+    throw new Error(result.error);
   }
 
   return (
     <ResolverPage
-      breadcrumbs={[...crumbs]}
-      resolve={resolvePanel}
+      breadcrumbs={[
+        homeBreadcrumb(),
+        { href: namespaceHref, label: namespaceId },
+        { label: pid },
+      ]}
+      resolve={
+        <ResolvePanel
+          key={`${namespaceId}/${pid}`}
+          mode="scoped"
+          scope="namespace"
+          namespaceId={namespaceId}
+          initialPid={pid}
+        />
+      }
       info={<PidInfoCard status="found" data={toPidInfoData(result)} />}
     />
   );

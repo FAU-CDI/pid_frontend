@@ -8,12 +8,16 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
+import {
+  browseErrorAction,
+  browseNotFoundKind,
+  openUrlAction,
+} from "@/lib/browse-result";
 import { encodeMountPath } from "@/lib/resolve-href";
 import {
+  namespaceMissing,
   pidHasNoUrl,
   pidNotFound,
-  serviceNotAvailable,
-  serviceStatusCopy,
 } from "@/lib/user-facing";
 
 export default async function MountPidGoPage({
@@ -27,17 +31,6 @@ export default async function MountPidGoPage({
   const { mount, pid } = await params;
   const mountHref = `/${encodeMountPath(mount)}`;
   const detailsHref = `${mountHref}/${encodeURIComponent(pid)}`;
-
-  const crumbs = [
-    homeBreadcrumb(),
-    { href: mountHref, label: mount },
-    { href: detailsHref, label: pid },
-    { label: "URL" },
-  ] as const;
-
-  const headersList = await headers();
-  const protocol = headersList.get("x-forwarded-proto") || "http";
-  const host = headersList.get("host");
 
   if (!mount.trim() || !pid.trim()) {
     return (
@@ -55,24 +48,73 @@ export default async function MountPidGoPage({
     );
   }
 
+  const headersList = await headers();
+  const protocol = headersList.get("x-forwarded-proto") || "http";
+  const host = headersList.get("host");
+
   if (!host) {
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={500}
-            title={serviceNotAvailable.title}
-            message={serviceNotAvailable.message}
-          />
-        }
-      />
-    );
+    throw new Error("Unable to determine host");
   }
 
   const client = getBackendClient();
   const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
+
+  const result = await client.getResourceByMount(baseUri, pid);
+
+  if (isBackendError(result)) {
+    if (browseErrorAction(result) === "not-found") {
+      if (browseNotFoundKind(result) === "scope-missing") {
+        return (
+          <ResolverPage
+            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            resolve={<GlobalResolveForm />}
+            info={
+              <StatusInfoCard
+                status={namespaceMissing.status}
+                title={namespaceMissing.title}
+                message={namespaceMissing.message}
+              />
+            }
+          />
+        );
+      }
+
+      return (
+        <ResolverPage
+          breadcrumbs={[
+            homeBreadcrumb(),
+            { href: mountHref, label: mount },
+            { href: detailsHref, label: pid },
+            { label: "URL" },
+          ]}
+          resolve={
+            <ResolvePanel
+              key={`${baseUri}/${pid}/go`}
+              mode="scoped"
+              scope="mount"
+              baseUri={baseUri}
+              initialPid={pid}
+            />
+          }
+          info={
+            <StatusInfoCard
+              status={pidNotFound.status}
+              title={pidNotFound.title}
+              message={pidNotFound.message}
+            />
+          }
+        />
+      );
+    }
+    throw new Error(result.error);
+  }
+
+  const crumbs = [
+    homeBreadcrumb(),
+    { href: mountHref, label: mount },
+    { href: detailsHref, label: pid },
+    { label: "URL" },
+  ] as const;
 
   const resolvePanel = (
     <ResolvePanel
@@ -84,72 +126,22 @@ export default async function MountPidGoPage({
     />
   );
 
-  const result = await client.getResourceByMount(baseUri, pid);
-
-  if (isBackendError(result)) {
-    if (result.status === 500) {
-      return (
-        <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
-          info={
-            <StatusInfoCard
-              status={500}
-              title={serviceNotAvailable.title}
-              message={serviceNotAvailable.message}
-            />
-          }
-        />
-      );
-    }
-
-    if (result.status === 404) {
-      return (
-        <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
-          info={
-            <StatusInfoCard
-              status={pidNotFound.status}
-              title={pidNotFound.title}
-              message={pidNotFound.message}
-            />
-          }
-        />
-      );
-    }
-
-    const copy = serviceStatusCopy(result.error === "Backend unavailable");
-    return (
-      <ResolverPage
-        breadcrumbs={[...crumbs]}
-        resolve={resolvePanel}
-        info={
-          <StatusInfoCard
-            status={result.status === 502 ? 502 : result.status}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+  const action = openUrlAction(result);
+  if (action.kind === "redirect") {
+    redirect(action.url);
   }
 
-  if (!("url" in result) || !result.url) {
-    return (
-      <ResolverPage
-        breadcrumbs={[...crumbs]}
-        resolve={resolvePanel}
-        info={
-          <StatusInfoCard
-            status={pidHasNoUrl.status}
-            title={pidHasNoUrl.title}
-            message={pidHasNoUrl.message}
-          />
-        }
-      />
-    );
-  }
-
-  redirect(result.url);
+  return (
+    <ResolverPage
+      breadcrumbs={[...crumbs]}
+      resolve={resolvePanel}
+      info={
+        <StatusInfoCard
+          status={pidHasNoUrl.status}
+          title={pidHasNoUrl.title}
+          message={pidHasNoUrl.message}
+        />
+      }
+    />
+  );
 }

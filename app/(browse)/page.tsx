@@ -25,22 +25,22 @@ export default async function HomePage({
     const host = headersList.get("host");
 
     if (!host) {
-      error = "Unable to resolve.";
-    } else {
-      const hostname = host.split(":")[0];
-      const publicBase = `${protocol}://${host}`;
-      const result = await resolveFirst(
-        q,
-        publicBase,
-        getBackendClient(),
-        hostname
-      );
+      throw new Error("Unable to determine host");
+    }
 
-      if (result === null) {
-        error = "No matching namespace or PID.";
-      } else {
-        redirect(hrefForResolved(result, publicBase));
-      }
+    const hostname = host.split(":")[0];
+    const publicBase = `${protocol}://${host}`;
+    const result = await resolveFirst(
+      q,
+      publicBase,
+      getBackendClient(),
+      hostname
+    );
+
+    if (result === null) {
+      error = "No matching namespace or PID.";
+    } else {
+      redirect(hrefForResolved(result, publicBase));
     }
   }
 

@@ -27,6 +27,19 @@ export const pidNotFound = {
   message: "The PID was not found.",
 } as const;
 
+/** Missing mount or namespace (plain error UI; no scoped breadcrumbs). */
+export const namespaceMissing = {
+  status: 404,
+  title: "Not found",
+  message: "No such namespace.",
+} as const;
+
+/** Shared copy for `not-found.tsx` (HTTP 404). */
+export const pageNotFound = {
+  title: "Not found",
+  message: "The requested page or resource was not found.",
+} as const;
+
 /** Map a backend-unavailable flag to the matching user-facing status copy. */
 export function serviceStatusCopy(unavailable: boolean): {
   title: string;

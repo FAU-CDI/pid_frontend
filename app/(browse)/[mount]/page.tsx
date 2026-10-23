@@ -8,7 +8,8 @@ import {
   getBackendClient,
   isBackendError,
 } from "@/lib/backend/client";
-import { serviceStatusCopy } from "@/lib/user-facing";
+import { browseErrorAction } from "@/lib/browse-result";
+import { namespaceMissing } from "@/lib/user-facing";
 
 export default async function MountPage({
   params,
@@ -30,81 +31,48 @@ export default async function MountPage({
   const client = getBackendClient();
   const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
 
-  const crumbs = [
-    homeBreadcrumb(),
-    { label: mount },
-  ] as const;
+  const crumbs = [homeBreadcrumb(), { label: mount }] as const;
 
   const result = await client.getMount(baseUri);
 
   if (isBackendError(result)) {
-    if (result.status === 500) {
-      throw new Error("Missing BACKEND_URL");
-    }
-
-    if (result.status === 404) {
+    if (browseErrorAction(result) === "not-found") {
       return (
         <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={
-            <GlobalResolveForm
-              key={mount}
-              defaultQuery={mount}
-            />
-          }
+          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          resolve={<GlobalResolveForm />}
           info={
             <StatusInfoCard
-              status={404}
-              title="Not found"
-              message="No such namespace."
+              status={namespaceMissing.status}
+              title={namespaceMissing.title}
+              message={namespaceMissing.message}
             />
           }
         />
       );
     }
-
-    const unavailable =
-      result.status === 502 && result.error === "Backend unavailable";
-    const copy = serviceStatusCopy(unavailable);
-
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={502}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+    throw new Error(result.error);
   }
 
   const namespace = await client.getNamespace(result.namespace);
 
   if (isBackendError(namespace)) {
-    return (
-      <ResolverPage
-        breadcrumbs={[...crumbs]}
-        resolve={
-          <ResolvePanel
-            key={baseUri}
-            mode="scoped"
-            scope="mount"
-            baseUri={baseUri}
-          />
-        }
-        info={
-          <StatusInfoCard
-            status={namespace.status === 404 ? 404 : 502}
-            title="Unable to load namespace"
-            message={`The namespace ${result.namespace} could not be loaded.`}
-          />
-        }
-      />
-    );
+    if (browseErrorAction(namespace) === "not-found") {
+      return (
+        <ResolverPage
+          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+          resolve={<GlobalResolveForm />}
+          info={
+            <StatusInfoCard
+              status={namespaceMissing.status}
+              title={namespaceMissing.title}
+              message={namespaceMissing.message}
+            />
+          }
+        />
+      );
+    }
+    throw new Error(namespace.error);
   }
 
   return (

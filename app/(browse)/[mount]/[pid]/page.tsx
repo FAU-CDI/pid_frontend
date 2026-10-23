@@ -9,11 +9,9 @@ import {
   isBackendError,
   type Resource,
 } from "@/lib/backend/client";
+import { browseErrorAction, browseNotFoundKind } from "@/lib/browse-result";
 import { encodeMountPath } from "@/lib/resolve-href";
-import {
-  serviceNotAvailable,
-  serviceStatusCopy,
-} from "@/lib/user-facing";
+import { namespaceMissing } from "@/lib/user-facing";
 
 function toPidInfoData(result: Resource) {
   return {
@@ -42,65 +40,49 @@ export default async function MountPidPage({
   const host = headersList.get("host");
 
   if (!host) {
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={500}
-            title={serviceNotAvailable.title}
-            message={serviceNotAvailable.message}
-          />
-        }
-      />
-    );
+    throw new Error("Unable to determine host");
   }
 
   const client = getBackendClient();
   const baseUri = client.resolveMountUri(mount, `${protocol}://${host}`);
   const mountHref = `/${encodeMountPath(mount)}`;
 
-  const crumbs = [
-    homeBreadcrumb(),
-    { href: mountHref, label: mount },
-    { label: pid },
-  ] as const;
-
-  const resolvePanel = (
-    <ResolvePanel
-      key={`${baseUri}/${pid}`}
-      mode="scoped"
-      scope="mount"
-      baseUri={baseUri}
-      initialPid={pid}
-    />
-  );
-
   const result = await client.getResourceByMount(baseUri, pid);
 
   if (isBackendError(result)) {
-    if (result.status === 500) {
+    if (browseErrorAction(result) === "not-found") {
+      if (browseNotFoundKind(result) === "scope-missing") {
+        return (
+          <ResolverPage
+            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            resolve={<GlobalResolveForm />}
+            info={
+              <StatusInfoCard
+                status={namespaceMissing.status}
+                title={namespaceMissing.title}
+                message={namespaceMissing.message}
+              />
+            }
+          />
+        );
+      }
+
       return (
         <ResolverPage
-          breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-          resolve={<GlobalResolveForm />}
-          info={
-            <StatusInfoCard
-              status={500}
-              title={serviceNotAvailable.title}
-              message={serviceNotAvailable.message}
+          breadcrumbs={[
+            homeBreadcrumb(),
+            { href: mountHref, label: mount },
+            { label: pid },
+          ]}
+          resolve={
+            <ResolvePanel
+              key={`${baseUri}/${pid}`}
+              mode="scoped"
+              scope="mount"
+              baseUri={baseUri}
+              initialPid={pid}
             />
           }
-        />
-      );
-    }
-
-    if (result.status === 404) {
-      return (
-        <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
           info={
             <PidInfoCard
               status="not-found"
@@ -111,28 +93,25 @@ export default async function MountPidPage({
         />
       );
     }
-
-    const copy = serviceStatusCopy(result.error === "Backend unavailable");
-
-    return (
-      <ResolverPage
-        breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
-        resolve={<GlobalResolveForm />}
-        info={
-          <StatusInfoCard
-            status={result.status === 502 ? 502 : result.status}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+    throw new Error(result.error);
   }
 
   return (
     <ResolverPage
-      breadcrumbs={[...crumbs]}
-      resolve={resolvePanel}
+      breadcrumbs={[
+        homeBreadcrumb(),
+        { href: mountHref, label: mount },
+        { label: pid },
+      ]}
+      resolve={
+        <ResolvePanel
+          key={`${baseUri}/${pid}`}
+          mode="scoped"
+          scope="mount"
+          baseUri={baseUri}
+          initialPid={pid}
+        />
+      }
       info={<PidInfoCard status="found" data={toPidInfoData(result)} />}
     />
   );

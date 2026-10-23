@@ -51,7 +51,7 @@ export class MockClient extends BackendClient {
    * Relative mounts are joined to {@link MOCK_RESOLVER_URL} (ignoring request
    * origin). Absolute mounts pass through unchanged (trailing slash only).
    */
-  override resolveMountUri(mount: string, _requestOrigin?: string): string {
+  override resolveMountUri(mount: string): string {
     return super.resolveMountUri(mount, MOCK_RESOLVER_URL);
   }
 

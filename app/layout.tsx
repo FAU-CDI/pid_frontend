@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import MockModeBanner from "@/app/components/mock-mode-banner";
 import { getBackendClient } from "@/lib/backend/client";
+import { optionalFooterHref } from "@/lib/footer-links";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,8 +10,8 @@ export const metadata: Metadata = {
 };
 
 function LegalLink({ children, href, fallback }: {href: string|undefined, children: React.ReactNode|React.ReactNode[], fallback?: string}) {
-  const theHref = typeof href === 'string' && href !== '' ? href : fallback;
-  if (typeof theHref !== 'string' || theHref === '') {
+  const theHref = optionalFooterHref(href) ?? optionalFooterHref(fallback);
+  if (!theHref) {
     return null;
   }
 
@@ -28,6 +29,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const documentationUrl = process.env.DOCUMENTATION_URL;
+  const publicApiUrl = process.env.PUBLIC_API_URL;
   const imprintUrl = process.env.IMPRINT_URL;
   const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL;
   const accessibilityUrl = process.env.ACCESSIBILITY_URL;
@@ -46,6 +48,10 @@ export default async function RootLayout({
               <LegalLink href={documentationUrl} fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
               >
                 Documentation
+              </LegalLink>
+
+              <LegalLink href={publicApiUrl}>
+                API
               </LegalLink>
 
               <LegalLink

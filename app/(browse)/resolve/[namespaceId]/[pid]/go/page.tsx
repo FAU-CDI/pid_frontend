@@ -8,10 +8,14 @@ import {
   isBackendError,
 } from "@/lib/backend/client";
 import {
+  browseErrorAction,
+  browseNotFoundKind,
+  openUrlAction,
+} from "@/lib/browse-result";
+import {
+  namespaceMissing,
   pidHasNoUrl,
   pidNotFound,
-  serviceNotAvailable,
-  serviceStatusCopy,
 } from "@/lib/user-facing";
 
 export default async function NamespacePidGoPage({
@@ -25,13 +29,6 @@ export default async function NamespacePidGoPage({
   const { namespaceId, pid } = await params;
   const namespaceHref = `/resolve/${encodeURIComponent(namespaceId)}`;
   const detailsHref = `${namespaceHref}/${encodeURIComponent(pid)}`;
-
-  const crumbs = [
-    homeBreadcrumb(),
-    { href: namespaceHref, label: namespaceId },
-    { href: detailsHref, label: pid },
-    { label: "URL" },
-  ] as const;
 
   if (!namespaceId.trim() || !pid.trim()) {
     return (
@@ -49,43 +46,46 @@ export default async function NamespacePidGoPage({
     );
   }
 
-  const resolvePanel = (
-    <ResolvePanel
-      key={`${namespaceId}/${pid}/go`}
-      mode="scoped"
-      scope="namespace"
-      namespaceId={namespaceId}
-      initialPid={pid}
-    />
-  );
-
   const result = await getBackendClient().getResourceByNamespace(
     namespaceId,
     pid
   );
 
   if (isBackendError(result)) {
-    if (result.status === 500) {
+    if (browseErrorAction(result) === "not-found") {
+      if (browseNotFoundKind(result) === "scope-missing") {
+        return (
+          <ResolverPage
+            breadcrumbs={[homeBreadcrumb(), { label: "Error" }]}
+            resolve={<GlobalResolveForm />}
+            info={
+              <StatusInfoCard
+                status={namespaceMissing.status}
+                title={namespaceMissing.title}
+                message={namespaceMissing.message}
+              />
+            }
+          />
+        );
+      }
+
       return (
         <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
-          info={
-            <StatusInfoCard
-              status={500}
-              title={serviceNotAvailable.title}
-              message={serviceNotAvailable.message}
+          breadcrumbs={[
+            homeBreadcrumb(),
+            { href: namespaceHref, label: namespaceId },
+            { href: detailsHref, label: pid },
+            { label: "URL" },
+          ]}
+          resolve={
+            <ResolvePanel
+              key={`${namespaceId}/${pid}/go`}
+              mode="scoped"
+              scope="namespace"
+              namespaceId={namespaceId}
+              initialPid={pid}
             />
           }
-        />
-      );
-    }
-
-    if (result.status === 404) {
-      return (
-        <ResolverPage
-          breadcrumbs={[...crumbs]}
-          resolve={resolvePanel}
           info={
             <StatusInfoCard
               status={pidNotFound.status}
@@ -96,38 +96,42 @@ export default async function NamespacePidGoPage({
         />
       );
     }
-
-    const copy = serviceStatusCopy(result.error === "Backend unavailable");
-    return (
-      <ResolverPage
-        breadcrumbs={[...crumbs]}
-        resolve={resolvePanel}
-        info={
-          <StatusInfoCard
-            status={result.status === 502 ? 502 : result.status}
-            title={copy.title}
-            message={copy.message}
-          />
-        }
-      />
-    );
+    throw new Error(result.error);
   }
 
-  if (!("url" in result) || !result.url) {
-    return (
-      <ResolverPage
-        breadcrumbs={[...crumbs]}
-        resolve={resolvePanel}
-        info={
-          <StatusInfoCard
-            status={pidHasNoUrl.status}
-            title={pidHasNoUrl.title}
-            message={pidHasNoUrl.message}
-          />
-        }
-      />
-    );
+  const crumbs = [
+    homeBreadcrumb(),
+    { href: namespaceHref, label: namespaceId },
+    { href: detailsHref, label: pid },
+    { label: "URL" },
+  ] as const;
+
+  const resolvePanel = (
+    <ResolvePanel
+      key={`${namespaceId}/${pid}/go`}
+      mode="scoped"
+      scope="namespace"
+      namespaceId={namespaceId}
+      initialPid={pid}
+    />
+  );
+
+  const action = openUrlAction(result);
+  if (action.kind === "redirect") {
+    redirect(action.url);
   }
 
-  redirect(result.url);
+  return (
+    <ResolverPage
+      breadcrumbs={[...crumbs]}
+      resolve={resolvePanel}
+      info={
+        <StatusInfoCard
+          status={pidHasNoUrl.status}
+          title={pidHasNoUrl.title}
+          message={pidHasNoUrl.message}
+        />
+      }
+    />
+  );
 }
