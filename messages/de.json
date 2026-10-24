@@ -17,8 +17,10 @@
     "urlCrumb": "URL"
   },
   "footer": {
-    "documentation": "Dokumentation",
+    "resolver": "Resolver",
+    "quickpid": "QuickPID",
     "api": "API",
+    "about": "Über",
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "accessibility": "Barrierefreiheit"
@@ -27,8 +29,8 @@
     "aboutTitle": "Über den PID Resolver",
     "aboutBody": "Dieser Dienst ermöglicht es, PIDs nachzuschlagen und Informationen zu den damit verbundenen Ressourcen anzuzeigen.",
     "pidCount": "Dieser Resolver hält derzeit {count} PIDs.",
-    "docsTitle": "Dokumentation",
-    "docsHint": "Dokumentation lesen und mehr über den PID Resolver erfahren.",
+    "aboutLinkTitle": "Über",
+    "aboutLinkHint": "Mehr über diesen Dienst erfahren.",
     "noMatch": "Kein passender Namespace oder PID."
   },
   "resolve": {

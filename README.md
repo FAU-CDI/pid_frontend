@@ -76,7 +76,7 @@ Agent notes live in [AGENTS.md](./AGENTS.md).
 | `PUBLIC_BASE_URI`     | Optional public frontend origin (no trailing slash) used when building absolute mount URIs for the backend.  |
 | `USE_MOCK_CLIENT`     | When truthy (`true` / `1` / `yes`), use the in-memory mock backend instead of the live API.                  |
 | `RESOLVE_EXAMPLE`     | Placeholder shown in the homepage Resolve field. Defaults to a valid mock PID path (`demo/123`).             |
-| `DOCUMENTATION_URL`   | Footer link to user documentation. Defaults to the QuickPID spec documentation when unset.                   |
+| `ABOUT_URL`           | Optional About link (footer and homepage card). Omitted when unset.                                          |
 | `PUBLIC_API_URL`      | Footer link to the public QuickPID API (display-only). Omitted from the footer when unset.                   |
 | `IMPRINT_URL`         | Footer link to an imprint. Omitted from the footer when unset.                                               |
 | `PRIVACY_POLICY_URL`  | Footer link to a privacy policy. Omitted from the footer when unset.                                         |

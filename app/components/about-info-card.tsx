@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
+import { optionalFooterHref } from "@/lib/footer-links";
 
 type AboutInfoCardProps = {
   /** Total issued PIDs when the count API succeeds. */
@@ -13,6 +14,7 @@ export default async function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
     typeof pidCount === "number"
       ? pidCount.toLocaleString(locale)
       : undefined;
+  const aboutUrl = optionalFooterHref(process.env.ABOUT_URL);
 
   return (
     <div className="space-y-6">
@@ -24,25 +26,27 @@ export default async function AboutInfoCard({ pidCount }: AboutInfoCardProps) {
         ) : null}
       </div>
 
-      <a
-        href="https://github.com/tkw1536/quickpid/tree/main/spec"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="card-muted"
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="card-title">
-              {t("docsTitle")}
-              <OpensInNewTabHint />
-            </h2>
-            <p className="card-hint">{t("docsHint")}</p>
+      {aboutUrl ? (
+        <a
+          href={aboutUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="card-muted"
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="card-title">
+                {t("aboutLinkTitle")}
+                <OpensInNewTabHint />
+              </h2>
+              <p className="card-hint">{t("aboutLinkHint")}</p>
+            </div>
+            <span className="text-xl" aria-hidden="true">
+              →
+            </span>
           </div>
-          <span className="text-xl" aria-hidden="true">
-            →
-          </span>
-        </div>
-      </a>
+        </a>
+      ) : null}
     </div>
   );
 }

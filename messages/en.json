@@ -17,8 +17,10 @@
     "urlCrumb": "URL"
   },
   "footer": {
-    "documentation": "Documentation",
+    "resolver": "Resolver",
+    "quickpid": "QuickPID",
     "api": "API",
+    "about": "About",
     "imprint": "Imprint",
     "privacy": "Privacy",
     "accessibility": "Accessibility"
@@ -27,8 +29,8 @@
     "aboutTitle": "About PID Resolver",
     "aboutBody": "This service lets you look up PIDs and see information about the resources they identify.",
     "pidCount": "This resolver currently holds {count} PIDs.",
-    "docsTitle": "Documentation",
-    "docsHint": "Read the documentation and learn more about the PID Resolver.",
+    "aboutLinkTitle": "About",
+    "aboutLinkHint": "Learn more about this service.",
     "noMatch": "No matching namespace or PID."
   },
   "resolve": {

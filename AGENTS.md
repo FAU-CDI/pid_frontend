@@ -62,6 +62,9 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
   We do not want to increase the public API surface: every HTTP route is effectively part of what clients can call and what we must keep stable.
   Homepage lookup and similar flows use public page URLs (e.g. `/?q=`) or server rendering/redirects—not fetchable JSON endpoints for the UI.
 - `PUBLIC_API_URL` is an optional footer link (same omission rules as `IMPRINT_URL`); never use it as the fetch base.
+- Do not hard-code deployment-specific URLs in source (About, imprint, privacy policy, accessibility, public API link, and similar site chrome).
+  Wire them through optional env vars (see `ABOUT_URL`, `IMPRINT_URL`, `PRIVACY_POLICY_URL`, `ACCESSIBILITY_URL`, `PUBLIC_API_URL` in the README), and omit the link when unset.
+  Product-stable URLs that are the same for every deployment (e.g. this repo’s source on GitHub) may stay hard-coded.
 
 ## Git workflow
 
