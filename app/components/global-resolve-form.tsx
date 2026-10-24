@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { resolveExamplePlaceholder } from "@/lib/resolve-example";
+import { useResolveExample } from "@/app/components/resolve-example-provider";
 
 type GlobalResolveFormProps = {
   /** Prefill for the q field (e.g. from `/?q=` or a prior query). */
@@ -20,6 +20,7 @@ export default function GlobalResolveForm({
 }: GlobalResolveFormProps) {
   const t = useTranslations("resolve");
   const locale = useLocale();
+  const placeholder = useResolveExample();
 
   return (
     <div className="card">
@@ -32,7 +33,7 @@ export default function GlobalResolveForm({
           type="text"
           name="q"
           defaultValue={defaultQuery}
-          placeholder={resolveExamplePlaceholder()}
+          placeholder={placeholder}
           autoComplete="off"
           aria-label={t("namespaceOrPid")}
           aria-invalid={error ? true : undefined}

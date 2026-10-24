@@ -1,12 +1,31 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import type { ChangeEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, type ChangeEvent } from "react";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { localeFlags, locales, type AppLocale } from "@/i18n/routing";
 import { isSupportedLocale } from "@/lib/locales";
 
 export default function LanguageSwitcher() {
+  return (
+    <Suspense fallback={<LanguageSwitcherControl query={{}} />}>
+      <LanguageSwitcherWithSearch />
+    </Suspense>
+  );
+}
+
+function LanguageSwitcherWithSearch() {
+  const searchParams = useSearchParams();
+  const query = Object.fromEntries(searchParams.entries());
+  return <LanguageSwitcherControl query={query} />;
+}
+
+function LanguageSwitcherControl({
+  query,
+}: {
+  query: Record<string, string>;
+}) {
   const t = useTranslations("nav");
   const locale = useLocale();
   const pathname = usePathname();
@@ -23,7 +42,9 @@ export default function LanguageSwitcher() {
     if (!isSupportedLocale(next) || next === locale) {
       return;
     }
-    router.replace(pathname, { locale: next });
+    const href =
+      Object.keys(query).length > 0 ? { pathname, query } : pathname;
+    router.replace(href, { locale: next });
   }
 
   return (

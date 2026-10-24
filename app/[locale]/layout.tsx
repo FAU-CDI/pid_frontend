@@ -4,9 +4,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import MockModeBanner from "@/app/components/mock-mode-banner";
 import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
+import { ResolveExampleProvider } from "@/app/components/resolve-example-provider";
 import { routing } from "@/i18n/routing";
 import { getBackendClient } from "@/lib/backend/client";
 import { optionalFooterHref } from "@/lib/footer-links";
+import { resolveExamplePlaceholder } from "@/lib/resolve-example";
 import "../globals.css";
 
 type Props = {
@@ -74,47 +76,50 @@ export default async function LocaleLayout({ children, params }: Props) {
   const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL;
   const accessibilityUrl = process.env.ACCESSIBILITY_URL;
   const usingMockClient = getBackendClient().isMockClient();
+  const resolveExample = resolveExamplePlaceholder();
 
   return (
     <html lang={locale}>
       <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider>
-          <a href="#main-content" className="skip-link">
-            {t("skipToContent")}
-          </a>
-          <div
-            className={`flex flex-1 flex-col ${usingMockClient ? "pb-28" : "pb-16"}`}
-          >
-            {children}
-          </div>
+          <ResolveExampleProvider placeholder={resolveExample}>
+            <a href="#main-content" className="skip-link">
+              {t("skipToContent")}
+            </a>
+            <div
+              className={`flex flex-1 flex-col ${usingMockClient ? "pb-28" : "pb-16"}`}
+            >
+              {children}
+            </div>
 
-          <div className="fixed bottom-0 z-50 w-full">
-            {usingMockClient && <MockModeBanner />}
-            <footer className="bg-blue-950 px-8 py-4 text-white">
-              <nav aria-label={t("footer")}>
-                <div className="flex flex-wrap items-center gap-6 text-sm">
-                  <LegalLink
-                    href={documentationUrl}
-                    fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
-                  >
-                    {tf("documentation")}
-                  </LegalLink>
+            <div className="fixed bottom-0 z-50 w-full">
+              {usingMockClient && <MockModeBanner />}
+              <footer className="bg-blue-950 px-8 py-4 text-white">
+                <nav aria-label={t("footer")}>
+                  <div className="flex flex-wrap items-center gap-6 text-sm">
+                    <LegalLink
+                      href={documentationUrl}
+                      fallback="https://github.com/tkw1536/quickpid/tree/main/spec"
+                    >
+                      {tf("documentation")}
+                    </LegalLink>
 
-                  <LegalLink href={publicApiUrl}>{tf("api")}</LegalLink>
+                    <LegalLink href={publicApiUrl}>{tf("api")}</LegalLink>
 
-                  <LegalLink href={imprintUrl}>{tf("imprint")}</LegalLink>
+                    <LegalLink href={imprintUrl}>{tf("imprint")}</LegalLink>
 
-                  <LegalLink href={privacyPolicyUrl}>
-                    {tf("privacy")}
-                  </LegalLink>
+                    <LegalLink href={privacyPolicyUrl}>
+                      {tf("privacy")}
+                    </LegalLink>
 
-                  <LegalLink href={accessibilityUrl}>
-                    {tf("accessibility")}
-                  </LegalLink>
-                </div>
-              </nav>
-            </footer>
-          </div>
+                    <LegalLink href={accessibilityUrl}>
+                      {tf("accessibility")}
+                    </LegalLink>
+                  </div>
+                </nav>
+              </footer>
+            </div>
+          </ResolveExampleProvider>
         </NextIntlClientProvider>
       </body>
     </html>
