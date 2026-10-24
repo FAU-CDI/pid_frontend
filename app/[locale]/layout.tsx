@@ -11,9 +11,6 @@ import { optionalFooterHref } from "@/lib/footer-links";
 import { resolveExamplePlaceholder } from "@/lib/resolve-example";
 import "../globals.css";
 
-const RESOLVER_SOURCE_URL = "https://github.com/FAU-CDI/pid_resolver";
-const QUICKPID_SOURCE_URL = "https://github.com/tkw1536/quickpid";
-
 type Props = {
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
@@ -72,12 +69,12 @@ export default async function LocaleLayout({ children, params }: Props) {
   const t = await getTranslations("nav");
   const tf = await getTranslations("footer");
   const aboutUrl = process.env.ABOUT_URL;
-  const publicApiUrl = process.env.PUBLIC_API_URL;
   const imprintUrl = process.env.IMPRINT_URL;
   const privacyPolicyUrl = process.env.PRIVACY_POLICY_URL;
   const accessibilityUrl = process.env.ACCESSIBILITY_URL;
-  const showLegalRow = Boolean(
-    optionalFooterHref(imprintUrl) ||
+  const showFooter = Boolean(
+    optionalFooterHref(aboutUrl) ||
+      optionalFooterHref(imprintUrl) ||
       optionalFooterHref(privacyPolicyUrl) ||
       optionalFooterHref(accessibilityUrl)
   );
@@ -98,37 +95,23 @@ export default async function LocaleLayout({ children, params }: Props) {
 
             <div className="shrink-0">
               {usingMockClient && <MockModeBanner />}
-              <footer className="bg-blue-950 px-4 py-3 text-white">
-                <nav aria-label={t("footer")} className="space-y-2">
-                  <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+              {showFooter ? (
+                <footer className="bg-blue-950 px-4 py-3 text-white">
+                  <nav
+                    aria-label={t("footer")}
+                    className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs"
+                  >
                     <FooterLink href={aboutUrl}>{tf("about")}</FooterLink>
-
-                    <FooterLink href={RESOLVER_SOURCE_URL}>
-                      {tf("resolver")}
+                    <FooterLink href={imprintUrl}>{tf("imprint")}</FooterLink>
+                    <FooterLink href={privacyPolicyUrl}>
+                      {tf("privacy")}
                     </FooterLink>
-
-                    <FooterLink href={QUICKPID_SOURCE_URL}>
-                      {tf("quickpid")}
+                    <FooterLink href={accessibilityUrl}>
+                      {tf("accessibility")}
                     </FooterLink>
-
-                    <FooterLink href={publicApiUrl}>{tf("api")}</FooterLink>
-                  </div>
-
-                  {showLegalRow ? (
-                    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
-                      <FooterLink href={imprintUrl}>{tf("imprint")}</FooterLink>
-
-                      <FooterLink href={privacyPolicyUrl}>
-                        {tf("privacy")}
-                      </FooterLink>
-
-                      <FooterLink href={accessibilityUrl}>
-                        {tf("accessibility")}
-                      </FooterLink>
-                    </div>
-                  ) : null}
-                </nav>
-              </footer>
+                  </nav>
+                </footer>
+              ) : null}
             </div>
           </ResolveExampleProvider>
         </NextIntlClientProvider>

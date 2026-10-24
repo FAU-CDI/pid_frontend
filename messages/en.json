@@ -17,20 +17,25 @@
     "urlCrumb": "URL"
   },
   "footer": {
-    "resolver": "Resolver",
-    "quickpid": "QuickPID",
-    "api": "API",
     "about": "About",
     "imprint": "Imprint",
     "privacy": "Privacy",
     "accessibility": "Accessibility"
   },
   "home": {
-    "aboutTitle": "About PID Resolver",
-    "aboutBody": "This service lets you look up PIDs and see information about the resources they identify.",
-    "pidCount": "This resolver currently holds {count} PIDs.",
-    "aboutLinkTitle": "About",
-    "aboutLinkHint": "Learn more about this service.",
+    "pidsTitle": "What PIDs are",
+    "pidsBody": "A PID is a persistent identifier: a long-lasting name for something you may need to find again later. That can be a paper, a file, a web page, or another kind of resource. PIDs help people refer to the same thing clearly over time.",
+    "wikiLinkTitle": "Read more on Wikipedia",
+    "aboutTitle": "What this resolver does",
+    "aboutBody": "To make PIDs useful, it needs to be possible to find what each one refers to. A resolver does that. The PIDs this resolver works with are grouped into Namespaces. You can show details such as the linked URL, metadata, and related information. To get started, enter a Namespace and a PID (separated by a slash) into the box above.",
+    "pidCountLabel": "{count} PIDs",
+    "pidCountBody": "Number of PIDs held in this resolver.",
+    "exampleTitle": "See an example",
+    "exampleBody": "Open a sample PID and explore its details.",
+    "aboutLinkTitle": "About this service",
+    "resolverLinkTitle": "Resolver software",
+    "softwareLinkTitle": "PID system software",
+    "apiLinkTitle": "API access",
     "noMatch": "No matching namespace or PID."
   },
   "resolve": {

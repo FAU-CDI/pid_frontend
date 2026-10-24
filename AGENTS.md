@@ -53,7 +53,7 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - HTTP status (maintainable App Router): guarantee **307** via `redirect()`, **5xx** via throw/`error.tsx`, and **404** for unmatched routes via `not-found.tsx`.
   Missing namespace/PID (and similar) must keep contextual breadcrumbs and Resolve UI, so those pages stay **200** with an error card — do not call `notFound()` for them (it replaces the page tree).
   Do not add Proxy, Pages Router, or other hacks for 410 or custom statuses on browse pages (next-intl `proxy.ts` for locale routing is the allowed exception).
-  Clients must not rely on frontend status codes; point them at the QuickPID API (`PUBLIC_API_URL` footer link is display-only; fetches use `BACKEND_URL`).
+  Clients must not rely on frontend status codes; point them at the QuickPID API (`PUBLIC_API_URL` homepage link is display-only; fetches use `BACKEND_URL`).
 - Stable public URL shapes: the routes under **URL shapes** in `README.md` are a **public API**.
   Do not remove or change them.
   Do not add new public routes unless the user explicitly requests that breaking or additive change.
@@ -61,7 +61,7 @@ Read the relevant guide under `node_modules/next/dist/docs/` before writing Next
 - Do not add Next.js Route Handler “API” routes for app features (no `/api/…`, no parallel “internal API” trees).
   We do not want to increase the public API surface: every HTTP route is effectively part of what clients can call and what we must keep stable.
   Homepage lookup and similar flows use public page URLs (e.g. `/?q=`) or server rendering/redirects—not fetchable JSON endpoints for the UI.
-- `PUBLIC_API_URL` is an optional footer link (same omission rules as `IMPRINT_URL`); never use it as the fetch base.
+- `PUBLIC_API_URL` is an optional homepage link (same omission rules as `IMPRINT_URL`); never use it as the fetch base.
 - Do not hard-code deployment-specific URLs in source (About, imprint, privacy policy, accessibility, public API link, and similar site chrome).
   Wire them through optional env vars (see `ABOUT_URL`, `IMPRINT_URL`, `PRIVACY_POLICY_URL`, `ACCESSIBILITY_URL`, `PUBLIC_API_URL` in the README), and omit the link when unset.
   Product-stable URLs that are the same for every deployment (e.g. this repo’s source on GitHub) may stay hard-coded.

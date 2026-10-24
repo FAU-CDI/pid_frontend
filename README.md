@@ -37,7 +37,7 @@ Missing namespace/PID pages keep breadcrumbs and Resolve controls, so those resp
 
 Do not rely on specific HTTP status codes from this frontend for programmatic clients.
 Treat the HTML as a UI.
-For resolution and status semantics, use the QuickPID API (`PUBLIC_API_URL` in the footer when configured, or your API base).
+For resolution and status semantics, use the QuickPID API (`PUBLIC_API_URL` on the homepage when configured, or your API base).
 
 ## Mock mode
 
@@ -70,17 +70,17 @@ Agent notes live in [AGENTS.md](./AGENTS.md).
 
 ## Configuration
 
-| Variable              | Purpose                                                                                                      |
-|-----------------------|--------------------------------------------------------------------------------------------------------------|
-| `BACKEND_URL`         | Base URL of the QuickPID API (`…/api/v2`, no trailing slash). Required unless mock mode is enabled.          |
-| `PUBLIC_BASE_URI`     | Optional public frontend origin (no trailing slash) used when building absolute mount URIs for the backend.  |
-| `USE_MOCK_CLIENT`     | When truthy (`true` / `1` / `yes`), use the in-memory mock backend instead of the live API.                  |
-| `RESOLVE_EXAMPLE`     | Placeholder shown in the homepage Resolve field. Defaults to a valid mock PID path (`demo/123`).             |
-| `ABOUT_URL`           | Optional About link (footer and homepage card). Omitted when unset.                                          |
-| `PUBLIC_API_URL`      | Footer link to the public QuickPID API (display-only). Omitted from the footer when unset.                   |
-| `IMPRINT_URL`         | Footer link to an imprint. Omitted from the footer when unset.                                               |
-| `PRIVACY_POLICY_URL`  | Footer link to a privacy policy. Omitted from the footer when unset.                                         |
-| `ACCESSIBILITY_URL`   | Footer link to an accessibility notice. Omitted from the footer when unset.                                  |
+| Variable              | Purpose                                                                                                                                                              |
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BACKEND_URL`         | Base URL of the QuickPID API (`…/api/v2`, no trailing slash). Required unless mock mode is enabled.                                                                  |
+| `PUBLIC_BASE_URI`     | Optional public frontend origin (no trailing slash) used when building absolute mount URIs for the backend.                                                          |
+| `USE_MOCK_CLIENT`     | When truthy (`true` / `1` / `yes`), use the in-memory mock backend instead of the live API.                                                                          |
+| `RESOLVE_EXAMPLE`     | Example as `{mount}/{pid}` (single-segment mount). Resolve-field placeholder and homepage “See an example” link. Defaults to `demo/123`.                             |
+| `ABOUT_URL`           | Optional About link (footer and homepage card). Omitted when unset.                                                                                                  |
+| `PUBLIC_API_URL`      | Homepage link to the public QuickPID API (display-only). Omitted when unset.                                                                                         |
+| `IMPRINT_URL`         | Footer link to an imprint. Omitted from the footer when unset.                                                                                                       |
+| `PRIVACY_POLICY_URL`  | Footer link to a privacy policy. Omitted from the footer when unset.                                                                                                 |
+| `ACCESSIBILITY_URL`   | Footer link to an accessibility notice. Omitted from the footer when unset.                                                                                          |
 
 `PUBLIC_BASE_URI` exists so local or alternate hosts can still match mounts registered under a different public origin.
 

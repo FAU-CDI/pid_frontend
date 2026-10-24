@@ -17,20 +17,25 @@
     "urlCrumb": "URL"
   },
   "footer": {
-    "resolver": "Resolver",
-    "quickpid": "QuickPID",
-    "api": "API",
     "about": "Über",
     "imprint": "Impressum",
     "privacy": "Datenschutz",
     "accessibility": "Barrierefreiheit"
   },
   "home": {
-    "aboutTitle": "Über den PID Resolver",
-    "aboutBody": "Dieser Dienst ermöglicht es, PIDs nachzuschlagen und Informationen zu den damit verbundenen Ressourcen anzuzeigen.",
-    "pidCount": "Dieser Resolver hält derzeit {count} PIDs.",
-    "aboutLinkTitle": "Über",
-    "aboutLinkHint": "Mehr über diesen Dienst erfahren.",
+    "pidsTitle": "Was PIDs sind",
+    "pidsBody": "Eine PID ist ein persistenter Identifikator: ein dauerhafter Name für etwas, das man später wiederfinden möchte. Das kann ein Artikel, eine Datei, eine Webseite oder eine andere Art von Ressource sein. PIDs helfen dabei, über längere Zeit klar auf dieselbe Sache zu verweisen.",
+    "wikiLinkTitle": "Mehr auf Wikipedia",
+    "aboutTitle": "Was dieser Resolver leistet",
+    "aboutBody": "Damit PIDs nützlich sind, muss sich herausfinden lassen, worauf sie verweisen. Ein Resolver macht genau das. Die PIDs, mit denen dieser Resolver arbeitet, sind in Namespaces gruppiert. Sie können Details wie die verknüpfte URL, Metadaten und weitere Angaben anzeigen. Geben Sie einfach einen Namespace und eine PID (durch einen Schrägstrich getrennt) in das Feld oben ein.",
+    "pidCountLabel": "{count} PIDs",
+    "pidCountBody": "Anzahl der PIDs in diesem Resolver.",
+    "exampleTitle": "Beispiel ansehen",
+    "exampleBody": "Öffnen Sie einen Beispiel-PID und sehen Sie sich die Details an.",
+    "aboutLinkTitle": "Über diesen Dienst",
+    "resolverLinkTitle": "Resolver-Software",
+    "softwareLinkTitle": "PID-Systemsoftware",
+    "apiLinkTitle": "API-Zugang",
     "noMatch": "Kein passender Namespace oder PID."
   },
   "resolve": {

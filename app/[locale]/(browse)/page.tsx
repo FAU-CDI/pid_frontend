@@ -5,7 +5,6 @@ import AboutInfoCard from "@/app/components/about-info-card";
 import GlobalResolveForm from "@/app/components/global-resolve-form";
 import ResolverPage from "@/app/components/resolver-page";
 import { getBackendClient, isBackendError } from "@/lib/backend/client";
-import { homeBreadcrumb } from "@/lib/breadcrumbs";
 import { hrefForResolved } from "@/lib/resolve-href";
 import { resolveFirst } from "@/lib/resolver";
 
@@ -47,7 +46,6 @@ export default async function HomePage({
 
   return (
     <ResolverPage
-      breadcrumbs={[await homeBreadcrumb()]}
       resolve={<GlobalResolveForm defaultQuery={q} error={error} />}
       info={<AboutInfoCard pidCount={pidCount} />}
     />
