@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import FieldHelp from "@/app/components/field-help";
 import { useRouter } from "@/i18n/navigation";
 import { encodeMountPath, hrefForResolved } from "@/lib/resolve-href";
 import {
@@ -92,24 +93,31 @@ export default function ResolvePanel(props: ResolvePanelProps) {
           navigate(false);
         }}
       >
-        <div className="field-with-prefix flex-1">
-          {prefix && <span className="field-prefix">{prefix}</span>}
-          <input
-            type="text"
-            placeholder={t("pid")}
-            value={pid}
-            autoComplete="off"
-            aria-label={prefix ? t("pidUnder", { prefix }) : t("pid")}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? ERROR_ID : undefined}
-            onChange={(e) => {
-              setPid(e.target.value);
-              setError("");
-            }}
-            className="field-input-bare"
-          />
+        <div className="min-w-0 flex-1">
+          <FieldHelp label={t("pid")} text={t("scopedPidHelp")} />
+          <div className="field-with-prefix mt-1.5">
+            {prefix && (
+              <span className="field-prefix" aria-hidden="true">
+                {prefix}
+              </span>
+            )}
+            <input
+              type="text"
+              placeholder={t("pid")}
+              value={pid}
+              autoComplete="off"
+              aria-label={prefix ? t("pidUnder", { prefix }) : t("pid")}
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? ERROR_ID : undefined}
+              onChange={(e) => {
+                setPid(e.target.value);
+                setError("");
+              }}
+              className="field-input-bare"
+            />
+          </div>
         </div>
-        <div className="flex shrink-0 flex-col gap-3 sm:w-40">
+        <div className="flex shrink-0 flex-col gap-3 sm:w-40 sm:pt-7">
           <button type="submit" className="btn-primary w-full">
             {t("showDetails")}
           </button>

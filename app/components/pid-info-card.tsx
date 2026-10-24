@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import CopyButton from "@/app/components/copy-button";
 import ExpandableMono from "@/app/components/expandable-mono";
+import FieldHelp from "@/app/components/field-help";
 import { BackendCode, BackendContent } from "@/app/components/lang";
 import OpensInNewTabHint from "@/app/components/opens-in-new-tab-hint";
 
@@ -32,6 +33,7 @@ type PidInfoCardProps =
 
 export default function PidInfoCard(props: PidInfoCardProps) {
   const t = useTranslations("pid");
+  const th = useTranslations("help");
   const te = useTranslations("errors");
   const locale = useLocale();
 
@@ -56,9 +58,15 @@ export default function PidInfoCard(props: PidInfoCardProps) {
   if (data.deleted) {
     return (
       <div className="card detail-stack">
-        <div className="detail-header">
-          <p className="detail-eyebrow">{t("eyebrow")}</p>
-          <span className="status-gone-badge">
+        <div className="detail-header items-start">
+          <div className="min-w-0 flex-1">
+            <FieldHelp
+              label={t("eyebrow")}
+              text={th("pid")}
+              labelClassName="detail-eyebrow"
+            />
+          </div>
+          <span className="status-gone-badge shrink-0">
             {te("pidNoLongerAvailable.badge")}
           </span>
         </div>
@@ -82,11 +90,15 @@ export default function PidInfoCard(props: PidInfoCardProps) {
 
   return (
     <div className="card detail-stack">
-      <p className="detail-eyebrow">{t("eyebrow")}</p>
+      <FieldHelp
+        label={t("eyebrow")}
+        text={th("pid")}
+        labelClassName="detail-eyebrow"
+      />
       <PidHero scope={data.scope} pid={data.pid} absolute={data.absolute} />
 
       <div className="detail-field">
-        <span className="detail-field-label">{t("url")}</span>
+        <FieldHelp label={t("url")} text={th("url")} />
         {data.url ? (
           <div className="detail-copy-row">
             <a
@@ -108,7 +120,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
 
       {data.metadata ? (
         <div className="detail-field">
-          <span className="detail-field-label">{t("metadata")}</span>
+          <FieldHelp label={t("metadata")} text={th("metadata")} />
           <ExpandableMono
             value={data.metadata}
             copyLabel={t("copyMetadata")}
@@ -118,7 +130,7 @@ export default function PidInfoCard(props: PidInfoCardProps) {
 
       {data.tags.length > 0 ? (
         <div className="detail-field">
-          <span className="detail-field-label">{t("tags")}</span>
+          <FieldHelp label={t("tags")} text={th("tags")} />
           <TagList tags={data.tags} />
         </div>
       ) : null}
@@ -196,15 +208,24 @@ function DetailDates({
   locale: string;
 }) {
   const t = useTranslations("pid");
+  const th = useTranslations("help");
 
   return (
     <div className="detail-meta">
-      <div className="detail-meta-row">
-        <span className="detail-meta-label">{t("created")}</span>
+      <div className="detail-meta-item">
+        <FieldHelp
+          label={t("created")}
+          text={th("createdPid")}
+          labelClassName="detail-meta-label"
+        />
         <span>{formatDate(dateCreated, locale)}</span>
       </div>
-      <div className="detail-meta-row">
-        <span className="detail-meta-label">{t("updated")}</span>
+      <div className="detail-meta-item">
+        <FieldHelp
+          label={t("updated")}
+          text={th("updatedPid")}
+          labelClassName="detail-meta-label"
+        />
         <span>{formatDate(dateUpdated, locale)}</span>
       </div>
     </div>

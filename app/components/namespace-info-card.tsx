@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import CopyButton from "@/app/components/copy-button";
+import FieldHelp from "@/app/components/field-help";
 import {
   BackendCode,
   BackendContent,
@@ -18,24 +19,31 @@ export default async function NamespaceInfoCard({
   mountBaseUri,
 }: NamespaceInfoCardProps) {
   const t = await getTranslations("namespace");
+  const th = await getTranslations("help");
   const tp = await getTranslations("pid");
   const locale = await getLocale();
 
   return (
     <div className="card detail-stack">
-      <p className="detail-eyebrow">{t("eyebrow")}</p>
+      <FieldHelp
+        label={t("eyebrow")}
+        text={th("namespace")}
+        labelClassName="detail-eyebrow"
+      />
 
-      <div className="detail-hero">
-        <span className="sr-only">{t("idLabel")}</span>
-        <span className="detail-hero-value">
-          <BackendCode>{namespace.id}</BackendCode>
-        </span>
-        <CopyButton value={namespace.id} label={tp("copyNamespaceId")} />
+      <div className="space-y-2">
+        <FieldHelp label={t("idLabel")} text={th("namespaceId")} />
+        <div className="detail-hero">
+          <span className="detail-hero-value">
+            <BackendCode>{namespace.id}</BackendCode>
+          </span>
+          <CopyButton value={namespace.id} label={tp("copyNamespaceId")} />
+        </div>
       </div>
 
       {mountBaseUri ? (
         <div className="detail-field">
-          <span className="detail-field-label">{t("mount")}</span>
+          <FieldHelp label={t("mount")} text={th("mount")} />
           <div className="detail-copy-row">
             <span className="detail-field-value">
               <BackendCode>{mountBaseUri}</BackendCode>
@@ -46,7 +54,7 @@ export default async function NamespaceInfoCard({
       ) : null}
 
       <div className="detail-field">
-        <span className="detail-field-label">{t("pidFormat")}</span>
+        <FieldHelp label={t("pidFormat")} text={th("pidFormat")} />
         <pre className="detail-code">
           <BackendCode>{namespace.pidFormat.pattern}</BackendCode>
           {" · "}
@@ -56,7 +64,7 @@ export default async function NamespaceInfoCard({
 
       {namespace.tags.length > 0 ? (
         <div className="detail-field">
-          <span className="detail-field-label">{t("tags")}</span>
+          <FieldHelp label={t("tags")} text={th("tags")} />
           <div className="detail-tag-list">
             {namespace.tags.map((tag) => (
               <span key={tag} className="detail-tag">
@@ -73,6 +81,8 @@ export default async function NamespaceInfoCard({
         locale={locale}
         createdLabel={t("created")}
         updatedLabel={t("updated")}
+        createdHelp={th("createdNamespace")}
+        updatedHelp={th("updatedNamespace")}
       />
     </div>
   );
@@ -84,21 +94,33 @@ function DetailDates({
   locale,
   createdLabel,
   updatedLabel,
+  createdHelp,
+  updatedHelp,
 }: {
   dateCreated: string;
   dateUpdated: string;
   locale: string;
   createdLabel: string;
   updatedLabel: string;
+  createdHelp: string;
+  updatedHelp: string;
 }) {
   return (
     <div className="detail-meta">
-      <div className="detail-meta-row">
-        <span className="detail-meta-label">{createdLabel}</span>
+      <div className="detail-meta-item">
+        <FieldHelp
+          label={createdLabel}
+          text={createdHelp}
+          labelClassName="detail-meta-label"
+        />
         <span>{formatDate(dateCreated, locale)}</span>
       </div>
-      <div className="detail-meta-row">
-        <span className="detail-meta-label">{updatedLabel}</span>
+      <div className="detail-meta-item">
+        <FieldHelp
+          label={updatedLabel}
+          text={updatedHelp}
+          labelClassName="detail-meta-label"
+        />
         <span>{formatDate(dateUpdated, locale)}</span>
       </div>
     </div>

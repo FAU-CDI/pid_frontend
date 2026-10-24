@@ -25,7 +25,7 @@
   },
   "home": {
     "aboutTitle": "Über den PID Resolver",
-    "aboutBody": "Dieser Dienst ermöglicht es, PIDs aufzulösen und Informationen zu den damit verbundenen Ressourcen abzurufen.",
+    "aboutBody": "Dieser Dienst ermöglicht es, PIDs nachzuschlagen und Informationen zu den damit verbundenen Ressourcen anzuzeigen.",
     "pidCount": "Dieser Resolver hält derzeit {count} PIDs.",
     "docsTitle": "Dokumentation",
     "docsHint": "Dokumentation lesen und mehr über den PID Resolver erfahren.",
@@ -35,9 +35,27 @@
     "showDetails": "Details",
     "openUrl": "URL öffnen",
     "namespaceOrPid": "Namespace oder PID",
+    "hint": "Geben Sie nur eine Namespace-ID ein, oder eine Namespace-ID und eine PID durch einen Schrägstrich getrennt. Drücken Sie danach die Eingabetaste oder wählen Sie Details.",
     "pid": "PID",
     "pidUnder": "PID unter {prefix}",
+    "scopedPidHelp": "Geben Sie eine PID aus diesem Namespace ein. Drücken Sie danach die Eingabetaste oder wählen Sie Details. Mit URL öffnen gelangen Sie zur verknüpften Webadresse der PID.",
     "pleaseEnterPid": "Bitte eine PID eingeben."
+  },
+  "help": {
+    "trigger": "Hilfe zu {label}",
+    "kicker": "Hilfe:",
+    "namespace": "Eine Sammlung von PIDs, die dasselbe Format und dieselben Einstellungen teilen.",
+    "namespaceId": "Eine eindeutige ID für diesen Namespace. Verwenden Sie sie, um den Namespace oder eine PID darunter nachzuschlagen.",
+    "mount": "Die öffentliche Webadresse, unter der dieser Namespace geöffnet wird.",
+    "pidFormat": "Wie PIDs in diesem Namespace aufgebaut sind: ein Muster (Sterne werden zu zufälligen Zeichen) und welcher Zeichensatz verwendet wird. Eine genauere Erklärung finden Sie in der API-Spezifikation.",
+    "tags": "Bezeichnungen zum Gruppieren oder Finden von Einträgen.",
+    "createdNamespace": "Wann dieser Namespace erstmals angelegt wurde.",
+    "createdPid": "Wann diese PID erstmals angelegt wurde.",
+    "updatedNamespace": "Wann dieser Namespace selbst zuletzt geändert wurde (nicht seine PIDs).",
+    "updatedPid": "Wann diese PID zuletzt geändert wurde.",
+    "pid": "Ein persistenter Identifikator, der diese Ressource innerhalb ihres Namespaces eindeutig bezeichnet.",
+    "url": "Die Webadresse, auf die diese PID zeigt, sofern eine gesetzt ist.",
+    "metadata": "Metadaten, die mit dieser PID gespeichert sind."
   },
   "namespace": {
     "eyebrow": "Namespace",

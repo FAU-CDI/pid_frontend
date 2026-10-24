@@ -25,7 +25,7 @@
   },
   "home": {
     "aboutTitle": "About PID Resolver",
-    "aboutBody": "This service allows users to resolve PIDs and retrieve information about the resources they identify.",
+    "aboutBody": "This service lets you look up PIDs and see information about the resources they identify.",
     "pidCount": "This resolver currently holds {count} PIDs.",
     "docsTitle": "Documentation",
     "docsHint": "Read the documentation and learn more about the PID Resolver.",
@@ -35,9 +35,27 @@
     "showDetails": "Show Details",
     "openUrl": "Open URL",
     "namespaceOrPid": "Namespace or PID",
+    "hint": "Enter just a Namespace ID or a Namespace ID and a PID separated by a slash, then press Enter or choose Show Details.",
     "pid": "PID",
     "pidUnder": "PID under {prefix}",
+    "scopedPidHelp": "Enter a PID from this Namespace, then press Enter or choose Show Details. Use Open URL to open the web address linked to the PID.",
     "pleaseEnterPid": "Please enter a PID."
+  },
+  "help": {
+    "trigger": "About {label}",
+    "kicker": "Help:",
+    "namespace": "A collection of PIDs that share the same format and settings.",
+    "namespaceId": "A unique ID for this Namespace. Use it when looking up the Namespace or a PID under it.",
+    "mount": "The public web address used to open this Namespace.",
+    "pidFormat": "How PIDs in this Namespace are built: a pattern (stars become random characters) and which character set is used. See the API specification for more detail.",
+    "tags": "Labels attached for grouping or finding items.",
+    "createdNamespace": "When this Namespace was first created.",
+    "createdPid": "When this PID was first created.",
+    "updatedNamespace": "When this Namespace itself was last changed (not its PIDs).",
+    "updatedPid": "When this PID was last changed.",
+    "pid": "A persistent identifier that uniquely identifies this resource within its Namespace.",
+    "url": "The web address this PID points to, if one is set.",
+    "metadata": "Metadata stored with this PID."
   },
   "namespace": {
     "eyebrow": "Namespace",
