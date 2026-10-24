@@ -62,28 +62,30 @@ export default async function NamespaceInfoCard({
         </pre>
       </div>
 
-      {namespace.tags.length > 0 ? (
-        <div className="detail-field">
-          <FieldHelp label={t("tags")} text={th("tags")} />
-          <div className="detail-tag-list">
-            {namespace.tags.map((tag) => (
-              <span key={tag} className="detail-tag">
-                <BackendContent>{tag}</BackendContent>
-              </span>
-            ))}
+      <div className="detail-section">
+        {namespace.tags.length > 0 ? (
+          <div className="detail-field">
+            <FieldHelp label={t("tags")} text={th("tags")} />
+            <div className="detail-tag-list">
+              {namespace.tags.map((tag) => (
+                <span key={tag} className="detail-tag">
+                  <BackendContent>{tag}</BackendContent>
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      <DetailDates
-        dateCreated={namespace.dateCreated}
-        dateUpdated={namespace.dateUpdated}
-        locale={locale}
-        createdLabel={t("created")}
-        updatedLabel={t("updated")}
-        createdHelp={th("createdNamespace")}
-        updatedHelp={th("updatedNamespace")}
-      />
+        <DetailDates
+          dateCreated={namespace.dateCreated}
+          dateUpdated={namespace.dateUpdated}
+          locale={locale}
+          createdLabel={t("created")}
+          updatedLabel={t("updated")}
+          createdHelp={th("createdNamespace")}
+          updatedHelp={th("updatedNamespace")}
+        />
+      </div>
     </div>
   );
 }

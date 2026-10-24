@@ -79,11 +79,13 @@ export default function PidInfoCard(props: PidInfoCardProps) {
         <div className="status-gone" role="status">
           {te("pidNoLongerAvailable.message")}
         </div>
-        <DetailDates
-          dateCreated={data.dateCreated}
-          dateUpdated={data.dateUpdated}
-          locale={locale}
-        />
+        <div className="detail-section">
+          <DetailDates
+            dateCreated={data.dateCreated}
+            dateUpdated={data.dateUpdated}
+            locale={locale}
+          />
+        </div>
       </div>
     );
   }
@@ -97,49 +99,53 @@ export default function PidInfoCard(props: PidInfoCardProps) {
       />
       <PidHero scope={data.scope} pid={data.pid} absolute={data.absolute} />
 
-      <div className="detail-field">
-        <FieldHelp label={t("url")} text={th("url")} />
-        {data.url ? (
-          <div className="detail-copy-row">
-            <a
-              href={data.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="detail-link"
-              lang="zxx"
-            >
-              <BackendCode>{data.url}</BackendCode>
-              <OpensInNewTabHint />
-            </a>
-            <CopyButton value={data.url} label={t("copyUrl")} />
+      <div className="detail-section">
+        <div className="detail-field">
+          <FieldHelp label={t("url")} text={th("url")} />
+          {data.url ? (
+            <div className="detail-copy-row">
+              <a
+                href={data.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="detail-link"
+                lang="zxx"
+              >
+                <BackendCode>{data.url}</BackendCode>
+                <OpensInNewTabHint />
+              </a>
+              <CopyButton value={data.url} label={t("copyUrl")} />
+            </div>
+          ) : (
+            <span className="detail-field-muted">{t("none")}</span>
+          )}
+        </div>
+
+        {data.metadata ? (
+          <div className="detail-field">
+            <FieldHelp label={t("metadata")} text={th("metadata")} />
+            <ExpandableMono
+              value={data.metadata}
+              copyLabel={t("copyMetadata")}
+            />
           </div>
-        ) : (
-          <span className="detail-field-muted">{t("none")}</span>
-        )}
+        ) : null}
       </div>
 
-      {data.metadata ? (
-        <div className="detail-field">
-          <FieldHelp label={t("metadata")} text={th("metadata")} />
-          <ExpandableMono
-            value={data.metadata}
-            copyLabel={t("copyMetadata")}
-          />
-        </div>
-      ) : null}
+      <div className="detail-section">
+        {data.tags.length > 0 ? (
+          <div className="detail-field">
+            <FieldHelp label={t("tags")} text={th("tags")} />
+            <TagList tags={data.tags} />
+          </div>
+        ) : null}
 
-      {data.tags.length > 0 ? (
-        <div className="detail-field">
-          <FieldHelp label={t("tags")} text={th("tags")} />
-          <TagList tags={data.tags} />
-        </div>
-      ) : null}
-
-      <DetailDates
-        dateCreated={data.dateCreated}
-        dateUpdated={data.dateUpdated}
-        locale={locale}
-      />
+        <DetailDates
+          dateCreated={data.dateCreated}
+          dateUpdated={data.dateUpdated}
+          locale={locale}
+        />
+      </div>
     </div>
   );
 }

@@ -263,8 +263,12 @@ body {
     @apply min-w-0 flex-1;
   }
 
+  .detail-section {
+    @apply flex flex-col gap-5 border-t border-gray-200 pt-5 dark:border-gray-800;
+  }
+
   .detail-meta {
-    @apply space-y-3 border-t border-gray-200 pt-4 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400;
+    @apply space-y-3 text-sm text-gray-600 dark:text-gray-400;
   }
 
   .detail-meta-item {
