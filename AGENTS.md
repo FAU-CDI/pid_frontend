@@ -2,7 +2,7 @@
 
 ## Project overview
 
-PID Resolver (`pid-resolver`) is a public Next.js frontend for looking up and redirecting Persistent Identifiers via the QuickPID public APIs.
+PID Resolver (`pid_resolver`) is a public Next.js frontend for looking up and redirecting Persistent Identifiers via the QuickPID public APIs.
 There is no authentication in this app.
 
 ## Setup

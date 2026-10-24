@@ -87,12 +87,12 @@ Agent notes live in [AGENTS.md](./AGENTS.md).
 ## CI and deployment
 
 GitHub Actions runs lint and tests on pushes and pull requests.
-On pushes to `main`, CI builds a multi-arch image from the [Dockerfile](./Dockerfile) and publishes it to GHCR as [`ghcr.io/fau-cdi/pid_frontend`](https://github.com/FAU-CDI/pid_frontend/pkgs/container/pid_frontend) (including the `latest` tag).
+On pushes to `main`, CI builds a multi-arch image from the [Dockerfile](./Dockerfile) and publishes it to GHCR as [`ghcr.io/fau-cdi/pid_resolver`](https://github.com/FAU-CDI/pid_resolver/pkgs/container/pid_resolver) (including the `latest` tag).
 
 ```bash
 docker run --rm -p 3000:3000 \
   -e BACKEND_URL=https://pid.example.com/api/v2 \
-  ghcr.io/fau-cdi/pid_frontend:latest
+  ghcr.io/fau-cdi/pid_resolver:latest
 ```
 
 Other environment variables are listed under Configuration.

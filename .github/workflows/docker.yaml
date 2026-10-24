@@ -9,7 +9,7 @@ concurrency:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: fau-cdi/pid_frontend
+  IMAGE_PREFIX: fau-cdi/pid_resolver
   PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
