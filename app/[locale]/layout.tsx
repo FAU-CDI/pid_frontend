@@ -80,23 +80,21 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale}>
-      <body className="flex min-h-screen flex-col">
+      <body className="flex h-screen flex-col">
         <NextIntlClientProvider>
           <ResolveExampleProvider placeholder={resolveExample}>
             <a href="#main-content" className="skip-link">
               {t("skipToContent")}
             </a>
-            <div
-              className={`flex flex-1 flex-col ${usingMockClient ? "pb-28" : "pb-16"}`}
-            >
+            <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
               {children}
             </div>
 
-            <div className="fixed bottom-0 z-50 w-full">
+            <div className="shrink-0">
               {usingMockClient && <MockModeBanner />}
-              <footer className="bg-blue-950 px-8 py-4 text-white">
+              <footer className="bg-blue-950 px-4 py-3 text-white">
                 <nav aria-label={t("footer")}>
-                  <div className="flex flex-wrap items-center gap-6 text-sm">
+                  <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
                     <LegalLink
                       href={documentationUrl}
                       fallback="https://github.com/tkw1536/quickpid/tree/main/spec"

@@ -97,6 +97,8 @@ Dynamic feedback (copy success, status cards) must be announced to assistive tec
 Links that open a new tab must expose that fact to screen readers (e.g. `OpensInNewTabHint`).
 When adding or changing UI, update focus styles and a11y attributes in the same change.
 Do not invent new a11y test scripts or dependencies unless explicitly requested.
+Do not add special-case mobile (or other viewport) UI: no User-Agent or client-width branching in JS, no duplicate mobile layouts, and no hardcoded content padding tuned to assumed chrome heights.
+Prefer layout that adjusts automatically (flex/grid wrap, scrollable main with intrinsic chrome height, fluid spacing).
 
 ## README prose
 
