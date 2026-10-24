@@ -84,6 +84,8 @@ The homepage primary control is **Show Details**, matching scoped mode; scoped m
 The same user-facing terminology must be used in the UI and in user-facing README sections.
 When renaming a label or error phrase in one place, update the other.
 Do not introduce synonyms for the same action (for example, do not mix “Redirect” and “Open URL”).
+Translations in `messages/{locale}.json` must **match meaning**, not English word order or sentence structure.
+Write each locale so it sounds natural and professional to speakers of that language; do not produce literal calques.
 Mock-mode UI is exempt.
 Developer/operator README sections (setup, env vars, mock mode, CI) may keep technical terms.
 
