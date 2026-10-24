@@ -101,6 +101,8 @@ export default async function LocaleLayout({ children, params }: Props) {
               <footer className="bg-blue-950 px-4 py-3 text-white">
                 <nav aria-label={t("footer")} className="space-y-2">
                   <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs">
+                    <FooterLink href={aboutUrl}>{tf("about")}</FooterLink>
+
                     <FooterLink href={RESOLVER_SOURCE_URL}>
                       {tf("resolver")}
                     </FooterLink>
@@ -110,8 +112,6 @@ export default async function LocaleLayout({ children, params }: Props) {
                     </FooterLink>
 
                     <FooterLink href={publicApiUrl}>{tf("api")}</FooterLink>
-
-                    <FooterLink href={aboutUrl}>{tf("about")}</FooterLink>
                   </div>
 
                   {showLegalRow ? (
