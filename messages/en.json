@@ -29,13 +29,13 @@
     "aboutTitle": "What this resolver does",
     "aboutBody": "To make PIDs useful, it needs to be possible to find what each one refers to. A resolver does that. The PIDs this resolver works with are grouped into Namespaces. You can show details such as the linked URL, metadata, and related information. To get started, enter a Namespace and a PID (separated by a slash) into the box above.",
     "pidCountLabel": "{count} PIDs",
-    "pidCountBody": "Number of PIDs held in this resolver.",
+    "pidCountBody": "PIDs held in this resolver.",
     "exampleTitle": "See an example",
     "exampleBody": "Open a sample PID and explore its details.",
-    "aboutLinkTitle": "About this service",
-    "resolverLinkTitle": "Resolver software",
-    "softwareLinkTitle": "PID system software",
-    "apiLinkTitle": "API access",
+    "aboutLinkTitle": "About This Service",
+    "resolverLinkTitle": "Resolver Software Source Code",
+    "softwareLinkTitle": "PID System Source Code",
+    "apiLinkTitle": "PID API Access",
     "noMatch": "No matching namespace or PID."
   },
   "resolve": {
